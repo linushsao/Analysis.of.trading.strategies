@@ -1,4 +1,4 @@
-#' A m_env Function
+#' A enchaned env Function
 #'
 #' This function allows you to multi paste vector.
 #' @param x A numeric vector.
@@ -24,8 +24,39 @@ m_env <- function(name=NULL,value=NULL,mode="init_list",dataset="env") {
 
 
     # function <<
-   
+    
+    env.db.merge <- function(be.merged,name){
+            #backup original conf
+            file.copy(name,paste(name,format(Sys.time(), "%b-%d_%X"),sep="."))
+            
+            be.merged.file <- read.csv(be.merged,header=FALSE)[-c(1),-c(1)] 
+                config <- read.csv(conf_name,header=FALSE)[-c(1),-c(1)] 
+                config <- rbind(config,be.merged.file)
+                result <- config
+                names(result) <- c(name.name ,name.value)
+                
+            write.csv(result,file=name)
+
+        return(result)
+    }
+
+    env.db.replace <- function(be.replaced,name){
+            #backup original conf
+            file.copy(name,paste(name,format(Sys.time(), "%b-%d_%X"),sep="."))
+            
+            config <- read.csv(be.replaced,header=FALSE)[-c(1),-c(1)] 
+                result <- config
+                names(result) <- c(name.name ,name.value)
+            
+            write.csv(result,file=name)
+
+        return(result)
+    }
+    
     env.reset <- function(v,name){
+            #backup original conf
+            file.copy(name,paste(name,format(Sys.time(), "%b-%d_%X"),sep="."))
+            
             unlink(name)
             file.create(name)
             
@@ -142,15 +173,26 @@ m_env <- function(name=NULL,value=NULL,mode="init_list",dataset="env") {
     
     if(mode == "init_reset") {
         config <- env.reset(c(env.file_name,env.file_value),name=conf_name ) #add first record
-#         names(config) <- c("name","value")
-#         write.csv(config,file=conf_name)
         result <- config
     }else if(mode == "init_list") {
          #do nothing
-    }else if(mode == "dataset_list") {
-        result  <- dataset
-        return(result)
-        break
+        }else if(mode == "db_list") {
+            result  <- dataset
+            return(result)
+            break
+        }else if(mode == "db_merge") {
+            be.merged <- value
+            print(c("1",be.merged ,conf_name))
+            config <- env.db.merge(be.merged, name=conf_name)
+            result <- config
+#             return(result)
+#             break
+        }else if(mode == "db_replace") {
+            be.replaced <- value
+            config <- env.db.replace(be.replaced, name=conf_name)
+            result <- config
+#             return(result)
+#             break
     }else if(mode == "w") {
         config <- env.modify()
     }else if(mode == "r") {
@@ -169,49 +211,52 @@ m_env <- function(name=NULL,value=NULL,mode="init_list",dataset="env") {
 
 #for testing
 # a <- "TESTING"
+
+stop()
+# env(name="raw.data.listname",mode="r")
 # 
-# stop()
-# # env(name="raw.data.listname",mode="r")
-# # 
-# # name="ORDER"
-# # value="FRUIT"
-# # mode="w"
-# # v <- c(env.file_name,env.file_value)
-# rm(list=ls())
-# # v[2]
-# m_env()
-# m_env(mode="dataset_list")
-# 
-# m_env(dataset="env")
-# m_env(mode="dataset_list")
-# m_env(dataset="new")
-# m_env(mode="dataset_list",dataset="new")
-# 
-# m_env(mode="init_reset")
-# m_env(mode="init_reset",dataset="new")
-# 
-# (m_env(name="list",value="NO",mode="w"))
-# (m_env(name="list",value="YES",mode="w"))
-# (m_env(name="ORDER",value="FRUIT",mode="w"))
-# (m_env(name="ORDER",value="BANANA",mode="w"))
-# 
-# (m_env(name="ORDER",value="BANANA",mode="d"))
-# (m_env(name="list",mode="d"))
-# 
-# (m_env(name="list",value="NO",mode="w",dataset="new"))
-# (m_env(name="list",value="YES",mode="w",dataset="new"))
-# (m_env(name="ORDER",value="FRUIT",mode="w",dataset="new"))
-# (m_env(name="ORDER",value="BANANA",mode="w",dataset="new"))
-# 
-# (m_env(name="ORDER",value="BANANA",mode="d",dataset="new"))
-# (m_env(name="list",mode="d",dataset="new"))
-# 
-# 
-# 
-# head(m_env(name="prefix.raw.data.name",mode="d"))
-# head(m_env(mode="init_list"))
-# 
-# head(m_env(mode="init_reset"))
+# name="ORDER"
+# value="FRUIT"
+# mode="w"
+# v <- c(env.file_name,env.file_value)
+rm(list=ls())
+# v[2]
+m_env()
+m_env(mode="db_list")
+
+m_env(value="/home/linus/ProjectStock/all_stocks/.env.Configure.csv",mode="db_merge")
+m_env(value="/home/linus/ProjectStock/all_stocks/.env.Configure.csv",mode="db_replace")
+
+m_env(dataset="env")
+m_env(mode="db_list")
+m_env(dataset="new")
+m_env(mode="db_list",dataset="new")
+
+m_env(mode="init_reset")
+m_env(mode="init_reset",dataset="new")
+
+(m_env(name="list",value="NO",mode="w"))
+(m_env(name="list",value="YES",mode="w"))
+(m_env(name="ORDER",value="FRUIT",mode="w"))
+(m_env(name="ORDER",value="BANANA",mode="w"))
+
+(m_env(name="ORDER",value="BANANA",mode="d"))
+(m_env(name="list",mode="d"))
+
+(m_env(name="list",value="NO",mode="w",dataset="new"))
+(m_env(name="list",value="YES",mode="w",dataset="new"))
+(m_env(name="ORDER",value="FRUIT",mode="w",dataset="new"))
+(m_env(name="ORDER",value="BANANA",mode="w",dataset="new"))
+
+(m_env(name="ORDER",value="BANANA",mode="d",dataset="new"))
+(m_env(name="list",mode="d",dataset="new"))
+
+
+
+head(m_env(name="prefix.raw.data.name",mode="d"))
+head(m_env(mode="init_list"))
+
+head(m_env(mode="init_reset"))
 
 
 
