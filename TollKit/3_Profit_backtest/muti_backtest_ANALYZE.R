@@ -51,7 +51,9 @@ enable_fund_allocation <- TRUE     #是否(TRUE/FALSE)使用資產配置理論
 ef_goal_return <- 0.001               #效率前緣做資產配置之**每日**預期報酬率
 
 enable_ef_simulation <- TRUE        #快速模擬n種配置
-ef_simulation_num <- m_env(name="ef_simulation_num",mode="r")            #快速模擬n種配置之次數
+ef_simulation_num <- m_env(name="ef_simulation_num",mode="r")  #快速模擬n種配置之次數
+enable_ef_simulation.record <- TRUE
+simulation.record.filename <- m_env(name="simulation.record.filename",mode="r")  #模擬配置儲存檔名
 
 #
 if( as.logical(enable_debug_mode[1]) ){
@@ -400,5 +402,55 @@ if (enable_ef_simulation) {
 windows()
 pairs(as.data.frame(coredata(all_RET)))
 # }
-cor(na.omit(all_RET))
+z.cor <- cor(na.omit(all_RET))
+
+if( enable_ef_simulation.record ) {
+
+    filename <- paste(research.path.of.linus,simulation.record.filename,sep="")
+    title <- c("Date", "Strategy", "testSet_period", "tranSet_period", "Stocks", "Min", "Median", "Max", "Range", "Sd", "Var", "Cor")
+    
+    if (! file.exists(filename) ) {
+        write.table(t(title), file=filename, sep=",", row.names=FALSE, col.names=TRUE) 
+        } 
+
+        z.file <- read.csv(filename,header=TRUE,sep=",")[,-c(1)] 
+        
+        all.assets.name <- names(all_assets)
+        
+        for(i in 1:length(all.assets.name)) {
+            
+            z.asset <- all_assets[,i]
+            
+            z.name <- all.assets.name[i]
+            z.date <- format(Sys.time(), "%Y-%m-%d")
+            z.testSet_period <- m_paste(testSet_period,op=" ")
+            z.tranSet_period <- m_paste(tranSet_period,op=" ")
+            z.stocks <-  m_paste(c("(",select_stock,")"),op=" ")
+            z.min <-min(z.asset)
+            z.median <- median(z.asset)
+            z.max <- max(z.asset)
+            z.range<- m_paste(c("(",m_paste(as.vector(range(z.asset)),op=" ~ "),")"),op=" ")
+            z.sd <- sd(z.asset)       
+            z.var <- var(z.asset)
+            z.cor_ <- m_paste(c("(",as.vector(z.cor[1,]),")"),op=" ")
+            
+            z.temp <- c(z.date, z.name, z.testSet_period, z.tranSet_period, z.stocks, z.min, z.median, z.max, z.range, z.sd, z.var, z.cor_)
+#             
+#             if(i == 1) {
+#                 z.file <- z.temp
+#                 }else{
+            z.file <- rbind(z.file, z.temp)
+#                 }
+#             }
+
+            z.file <- as.data.frame(z.file)
+            names(z.file) <- title
+            rownames(z.file) <- NULL
+            write.csv(z.file,file=filename) 
+    }
+
+z.cor
+
+
+
 

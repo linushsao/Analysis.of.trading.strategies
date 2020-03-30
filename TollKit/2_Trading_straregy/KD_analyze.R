@@ -11,10 +11,10 @@ setwd("/home/linus/ProjectStock/all_stocks")
 #^GSPC(SP500) ^DJI(道瓊) YM=F(mini道瓊)
 
 #個股參數調整
-stock_name <- "^TWII" 
+stock_name <- "^GSPC" 
 sub_name <- ""                          #上市.TW / 上櫃 .TWO / 空白表示為指數
-to_period <- "2020-03-13"
-emable_stock_local <- TRUE              #是否(TRUE/FALSE)使用目前資料,或是從網路下載股票資料 
+to_period <- "2020-03-30"
+emable_stock_local <- FALSE              #是否(TRUE/FALSE)使用目前資料,或是從網路下載股票資料 
 
 #選擇性調整
 time_period <- "2000::2020"             #月移動線顯示範圍

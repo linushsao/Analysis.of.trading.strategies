@@ -29,12 +29,7 @@ stock.selected.Files_Extension <- m_env(name="stock.selected.Files_Extension",mo
 raw.data.Listname <- m_env(name="raw.data.Listname",mode="r")
 #
 stock.selected_Files <- as.vector(read.csv(paste(research.path.of.linus, raw.data.Listname,sep=""), header=TRUE, sep=",")[,2])
-# stock.selected_Files <- paste("RAW.",stock.selected_Files)
 
-
-
-#import all dataset for washing
-# name <- gsub(" ","",paste(stock.selected_Files, stock.selected.Files_Extension, sep=""))
 name <- stock.selected_Files
 filter.list <- merge.data_ByFile(paste(research.path.of.linus, name, sep=""),period=2:3,order=1,header=TRUE)
 filter <- t(filter.list[,1])
@@ -44,9 +39,6 @@ washed.List <- c(rep(NA,50))
 .r.list.num <- 0
 
 fin.report <- function(result.List )    {
-#     msg<- m_paste(c(prefix.Finished ,symbol ," ,index.max ",.max.Data.Num) ,op="")
-# #     .r.list.num <- .r.list.num +1
-#     result.List <- ifelse(TRUE,all.List(list ,msg ),0)
     write.zoo(result.List,file=paste(prefix.Rlist ,name[1],sep=""),sep=",")
 }
 
@@ -58,7 +50,6 @@ for (i in 1:length(name)) {
     if(dbg(type="if.debug")){
         data_RAW[,replace.colum ] <- gsub(prefix.stock.sxtension,"",data_RAW[,replace.colum ] )
     }
-#     filter <- gsub(prefix.stock.sxtension,"",as.vector(t(filter.list[1])))
         for (j in 1:length(data_RAW[,replace.colum])) {
             filted.stock_code <- data_RAW[,replace.colum ][j]
             if (!(filted.stock_code %in% filter)) {
@@ -72,25 +63,12 @@ for (i in 1:length(name)) {
                     data_RAW[j,] <- NA 
                     }
                 zero <- ifelse(dbg(type="if.debug"),del.debug(result.List),del.real(result.List))
-#                 if(dbg(type="if.debug")){
-# #                     data_RAW[j,] <- m_paste(c(mark.Deleted," code: ",filted.stock_code),op="")
-# #                     msg <- m_paste(c(prefix.MsgFor.Delete ,"Index: " ,j ," Code: ",filted.stock_code ," in " ,symbol),op="")
-# #                     .r.list.num <- .r.list.num+1
-# #                     result.List[.r.list.num] <- msg
-#                 }else{
-#                     #data_RAW[j,] <- NA 
             }else{
-#                 pass.debug <- function(result.List ){
                     msg <- m_paste(c("filted.stock_code ",filted.stock_code ," the same with ",data_RAW[,replace.colum ][j]," in ",symbol),op="")
                     .r.list.num <- .r.list.num+1
-#                     result.List <- ifelse(TRUE,all.List(result.List ,msg ),0)
-#                 }
-#                 zero <- ifelse(dbg(type="if.debug"),pass.debug(result.List),0)
                 result.List[.r.list.num] <- msg
             }
         }
-
-# zero <- ifelse(dbg(type="if.debug"),dbg(result.List,type="print", pause=TRUR),0)
 
 if(dbg(type="if.debug")){
     data_RAW <- na.omit(data_RAW)
@@ -117,51 +95,29 @@ rownames(data_RAW.sort) <- NULL
 write.csv(data_RAW.sort,file=paste(research.path.of.linus, file_name, sep=""))
 
 if(dbg(type="if.debug")){
-    # zero <- ifelse(dbg(type="if.debug"),fin.report(result.List),)
     msg<- m_paste(c(prefix.Finished ,symbol ," ,index.max ",.max.Data.Num) ,op="")
     .r.list.num <- .r.list.num+1
     result.List[.r.list.num] <- msg 
 
     #output filter file
     file_name <- m_paste(c(prefix.Filter ,i ,name[1]) ,op="")
-    # write.zoo(filter.list,file=file_name,sep=",")
     write.csv(filter.list,file=paste(research.path.of.linus, file_name, sep=""))
 }
 
 washed.List[i] <- file_name
 
 }
-
 ## END_OF LOOP
-
-# .r.list.num  <- .r.list.num +1
-# result.List[.r.list.num] <- " "
-# for(.td in 1:length(name)){
-#     .r.list.num  <- .r.list.num +1
-#     result.List[.r.list.num ] <- result.List[.td]
-# }
-
-# dbg(na.omit(result.List))
-#Result Print
 
 ifelse(dbg(type="if.debug"),fin.report(result.List ),0)
 
-# washed.listname.Result <- m_paste(c(prefix.Washed.List.name  ,na.omit(washed.List)),op=mark.Splite)
-# listname.Result <- m_paste(c(prefix.Washed.List.name  ,na.omit(washed.List)),op=mark.Splite)
-# file_name <- m_paste(c(prefix.washed.list,name[1]),op="")
 file_name <- prefix.Washed.List.name
 zero <- m_env(name="prefix.Washed.List.name",value=file_name ,mode="w")
-
-# write.zoo(washed.listname.Result,file=paste(research.path.of.linus, file_name, sep=""),sep=",")
 write.zoo(washed.List,file=paste(research.path.of.linus, file_name, sep=""),sep=",")
 #fot testing
 file_name <- washed.List[1]
 zero <- m_env(name="backtest.name",value=file_name  ,mode="w")
 
-#file_name <- paste(selected_period,"_ANALYZE.csv",sep="")
-#names(KK_RAW) <- c("INDEX","STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO")
-#write.zoo(KK_RAW,file=file_name,sep=",")
-#View(KK_RAW)
 
 
 
