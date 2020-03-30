@@ -4,7 +4,7 @@
 \alias{m_sort}
 \title{A multi sort Function}
 \usage{
-m_sort(x, key = NULL, order = FALSE, reindex = FALSE)
+m_sort(x, key = NULL, decreasing = FALSE, reindex = FALSE)
 }
 \arguments{
 \item{x}{A numeric vector.}

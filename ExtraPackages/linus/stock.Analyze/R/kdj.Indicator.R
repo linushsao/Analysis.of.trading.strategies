@@ -17,6 +17,9 @@ kdj.Indicator <- function(data_Import,n=9) {
     date <- index(close)
     ndate <- length(date)
 
+    m_msg(date)
+    write.csv(data_Import,file="check_KDTrade3.csv")
+    write.csv(c("ndate",ndate),file="check_KDTrade4.csv")
     periodHigh <- xts(rep(0,ndate-(n-1)),order.by=date[-(1:(n-1))])
     periodLow <- xts(rep(0,ndate-(n-1)),order.by=date[-(1:(n-1))])
     RSV <- xts(rep(0,ndate-(n-1)),order.by=date[-(1:(n-1))])

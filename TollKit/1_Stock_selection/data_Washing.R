@@ -4,29 +4,31 @@ LIBRS <- c('quantmod','stringr','fTrading','xts','TTR','roxygen2')
 sapply(LIBRS,library,character.only=TRUE)
 
 #local devel fubction
-setwd("/home/linus/ProjectStock/ExtraPackages/linus/stock.Analyze")
+setwd("/home/linus/Project/1_R/Analysis.of.trading.strategies/ExtraPackages/linus/stock.Analyze/")
 roxygenize()
 library("stock.Analyze")
 
+#stocks data path
+setwd("/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stocks.preDownload/")
 #
-setwd("/home/linus/ProjectStock/all_stocks/")
+research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 
-#
 # enable.Debug <- TRUE
-prefix.stock.sxtension <- env(name="prefix.stock.sxtension",mode="r")
-prefix.Washed <- env(name="prefix.Washed",mode="r")
-prefix.Washed.AllListname <- env(name="prefix.Washed.AllListname",mode="r")
-prefix.Filter <- env(name="prefix.Filter",mode="r")
-prefix.Rlist <- env(name="prefix.Rlist",mode="r")
-prefix.Finished <- env(name="prefix.Finished ",mode="r")
-prefix.MsgFor.Delete <- env(name="prefix.MsgFor.Delete",mode="r")
-mark.Deleted <- env(name="mark.Deleted",mode="r")
-mark.Splite <- env(name="mark.Splite",mode="r")
-prefix.washed.list <- env(name="prefix.washed.list",mode="r")
-stock.selected.Files_Extension <- env(name="stock.selected.Files_Extension ",mode="r")
-raw.data.Listname <- env(name="raw.data.Listname",mode="r")
+prefix.raw.data.name <- m_env(name="prefix.raw.data.name",mode="r")
+prefix.stock.sxtension <- m_env(name="prefix.stock.sxtension",mode="r")
+prefix.Washed <- m_env(name="prefix.Washed",mode="r")
+prefix.Washed.List.name  <- m_env(name="prefix.Washed.List.name",mode="r")
+prefix.Filter <- m_env(name="prefix.Filter",mode="r")
+prefix.Rlist <- m_env(name="prefix.Rlist",mode="r")
+prefix.Finished <- m_env(name="prefix.Finished ",mode="r")
+prefix.MsgFor.Delete <- m_env(name="prefix.MsgFor.Delete",mode="r")
+mark.Deleted <- m_env(name="mark.Deleted",mode="r")
+mark.Splite <- m_env(name="mark.Splite",mode="r")
+prefix.washed.list <- m_env(name="prefix.washed.list",mode="r")
+stock.selected.Files_Extension <- m_env(name="stock.selected.Files_Extension",mode="r")
+raw.data.Listname <- m_env(name="raw.data.Listname",mode="r")
 #
-stock.selected_Files <- as.vector(read.csv(raw.data.Listname , header=TRUE, sep=",")[,2])
+stock.selected_Files <- as.vector(read.csv(paste(research.path.of.linus, raw.data.Listname,sep=""), header=TRUE, sep=",")[,2])
 # stock.selected_Files <- paste("RAW.",stock.selected_Files)
 
 
@@ -34,7 +36,7 @@ stock.selected_Files <- as.vector(read.csv(raw.data.Listname , header=TRUE, sep=
 #import all dataset for washing
 # name <- gsub(" ","",paste(stock.selected_Files, stock.selected.Files_Extension, sep=""))
 name <- stock.selected_Files
-filter.list <- merge.data_ByFile(name,period=2:3,order=1)
+filter.list <- merge.data_ByFile(paste(research.path.of.linus, name, sep=""),period=2:3,order=1,header=TRUE)
 filter <- t(filter.list[,1])
 
 result.List <- c(rep(NA,50))
@@ -51,7 +53,7 @@ fin.report <- function(result.List )    {
 for (i in 1:length(name)) {
 
     symbol <- name[i] 
-    data_RAW <- read.csv(symbol,header=FALSE)
+    data_RAW <- read.csv(symbol,header=TRUE)
     replace.colum <- 2
     if(dbg(type="if.debug")){
         data_RAW[,replace.colum ] <- gsub(prefix.stock.sxtension,"",data_RAW[,replace.colum ] )
@@ -97,7 +99,7 @@ if(dbg(type="if.debug")){
 file_name <- m_paste(c(prefix.Washed ,i ,"_",symbol) ,op="")
 #     V1      V2     V3         V4        V5               V6   V7          V8           V9
 #1     1 1101.TW   台泥   39.34180 1.1830971         水泥工業 上市 0.038914674  4.319633977
-names(data_RAW) <- c("INDEX","STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO")
+names(data_RAW) <- c("INDEX","STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO","Record_Start")
 if(dbg(type="if.debug")){
     #data_RAW <- na.omit(data_RAW)
     .range <-length(index(data_RAW[,1]))
@@ -108,20 +110,22 @@ if(dbg(type="if.debug")){
 
 #save data washed file...
 if(dbg(type="if.debug")){
-data_RAW[,replace.colum] <- paste(data_RAW[,replace.colum],prefix.stock.sxtension,sep="")
+    data_RAW[,replace.colum] <- paste(data_RAW[,replace.colum],prefix.stock.sxtension,sep="")
 }
-write.zoo(data_RAW[,-c(1)],file=file_name,sep=",")
+data_RAW.sort <- m_sort(data_RAW,key="RATE",decreasing=TRUE)[,-c(1)]
+rownames(data_RAW.sort) <- NULL
+write.csv(data_RAW.sort,file=paste(research.path.of.linus, file_name, sep=""))
 
 if(dbg(type="if.debug")){
-# zero <- ifelse(dbg(type="if.debug"),fin.report(result.List),)
-msg<- m_paste(c(prefix.Finished ,symbol ," ,index.max ",.max.Data.Num) ,op="")
-.r.list.num <- .r.list.num+1
-result.List[.r.list.num] <- msg 
+    # zero <- ifelse(dbg(type="if.debug"),fin.report(result.List),)
+    msg<- m_paste(c(prefix.Finished ,symbol ," ,index.max ",.max.Data.Num) ,op="")
+    .r.list.num <- .r.list.num+1
+    result.List[.r.list.num] <- msg 
 
-#output filter file
-file_name <- m_paste(c(prefix.Filter ,i ,name[1]) ,op="")
-write.zoo(filter.list,file=file_name,sep=",")
-
+    #output filter file
+    file_name <- m_paste(c(prefix.Filter ,i ,name[1]) ,op="")
+    # write.zoo(filter.list,file=file_name,sep=",")
+    write.csv(filter.list,file=paste(research.path.of.linus, file_name, sep=""))
 }
 
 washed.List[i] <- file_name
@@ -142,13 +146,17 @@ washed.List[i] <- file_name
 
 ifelse(dbg(type="if.debug"),fin.report(result.List ),0)
 
-washed.listname.Result <- m_paste(c(prefix.Washed.AllListname ,na.omit(washed.List)),op=mark.Splite)
-file_name <- m_paste(c(prefix.washed.list,name[1]),op="")
-zero <- env(name="washed.listname.Result",value=file_name ,mode="w")
-write.zoo(washed.listname.Result,file=file_name,sep=",")
+# washed.listname.Result <- m_paste(c(prefix.Washed.List.name  ,na.omit(washed.List)),op=mark.Splite)
+# listname.Result <- m_paste(c(prefix.Washed.List.name  ,na.omit(washed.List)),op=mark.Splite)
+# file_name <- m_paste(c(prefix.washed.list,name[1]),op="")
+file_name <- prefix.Washed.List.name
+zero <- m_env(name="prefix.Washed.List.name",value=file_name ,mode="w")
+
+# write.zoo(washed.listname.Result,file=paste(research.path.of.linus, file_name, sep=""),sep=",")
+write.zoo(washed.List,file=paste(research.path.of.linus, file_name, sep=""),sep=",")
 #fot testing
-file_name <- name[2]
-zero <- env(name="backtest.name",value=washed.List[1]  ,mode="w")
+file_name <- washed.List[1]
+zero <- m_env(name="backtest.name",value=file_name  ,mode="w")
 
 #file_name <- paste(selected_period,"_ANALYZE.csv",sep="")
 #names(KK_RAW) <- c("INDEX","STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO")

@@ -4,7 +4,7 @@
 \alias{merge.data_ByFile}
 \title{A for merge.data_ByFile  Function}
 \usage{
-\method{merge}{data_ByFile}(name, period = NULL, order = NULL, debugger = FALSE)
+\method{merge}{data_ByFile}(name, period = NULL, order = NULL, debugger = FALSE, header = FALSE)
 }
 \arguments{
 \item{x}{A numeric vector.}

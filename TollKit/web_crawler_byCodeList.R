@@ -7,6 +7,7 @@ setwd("/home/linus/ProjectStock/ExtraPackages/linus/stock.Analyze")
 library('roxygen2')
 roxygenize()
 library("stock.Analyze")
+
 data.dir <- "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stock.price/"
 setwd(data.dir)
 #Basic Configure >>
@@ -16,7 +17,7 @@ url.tail <- "?period1=1199059200&period2=1585267200&interval=1d&events=history"
 crawl.check <- ".crawl.check.csv"
 extension <- ".TW"
 file.extension <- ".csv"
-crawl.delay.seconds <- c(5:10) #default
+crawl.delay.seconds <- c(2:4) #default
 fake.header <- ""
 stock.code.list.path <- m_paste(c(getwd(),"0_Info","all.codes.tw.csv"),op="/")
 #Param Configure >>

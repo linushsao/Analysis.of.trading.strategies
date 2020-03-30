@@ -7,7 +7,7 @@
 #' @examples
 #' median_function(seq(1:10))
 
-merge.data_ByFile <- function(name,period=NULL,order=NULL,debugger=FALSE) {
+merge.data_ByFile <- function(name,period=NULL,order=NULL,debugger=FALSE,header=FALSE) {
 
     l_name <- length(name)
     temp <- data.frame()
@@ -15,7 +15,7 @@ merge.data_ByFile <- function(name,period=NULL,order=NULL,debugger=FALSE) {
     for(i in 1:l_name) {
         
         name[i]-> symbol
-        data_RAW <- read.csv(symbol,header=FALSE)
+        data_RAW <- read.csv(symbol,header=header)
         data <- data.frame(data_RAW[,period])
         data[,1] <- as.numeric(gsub(".TW","",data[,order]))
         names(data) <- c("code","name")
