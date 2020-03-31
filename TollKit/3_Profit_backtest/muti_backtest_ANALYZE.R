@@ -410,7 +410,9 @@ if( enable_ef_simulation.record ) {
     title <- c("Date", "Strategy", "testSet_period", "tranSet_period", "Stocks", "Min", "Median", "Max", "Range", "Sd", "Var", "Cor")
     
     if (! file.exists(filename) ) {
-        write.table(t(title), file=filename, sep=",", row.names=FALSE, col.names=TRUE) 
+        z.temp <- as.data.frame(t(rep(NA,length(title))))
+        names(z.temp) <- title
+        write.table(z.temp, file=filename, sep=",", row.names=FALSE, col.names=FALSE) 
         } 
 
         z.file <- read.csv(filename,header=TRUE,sep=",")[,-c(1)] 
@@ -436,15 +438,18 @@ if( enable_ef_simulation.record ) {
             
             z.temp <- c(z.date, z.name, z.testSet_period, z.tranSet_period, z.stocks, z.min, z.median, z.max, z.range, z.sd, z.var, z.cor_)
 #             
-#             if(i == 1) {
-#                 z.file <- z.temp
-#                 }else{
-            z.file <- rbind(z.file, z.temp)
-#                 }
-#             }
-
-            z.file <- as.data.frame(z.file)
-            names(z.file) <- title
+            if(i == 1) {
+                z.collect <- z.temp
+                }else{
+            z.collect <- rbind(z.collect,z.temp)
+                }
+            }
+            
+            z.collect <- as.data.frame(z.collect)
+            rownames(z.collect) <- NULL
+            names(z.collect ) <- title
+            z.file <- rbind(z.file, z.collect)
+#             names(z.file) <- title
             rownames(z.file) <- NULL
             write.csv(z.file,file=filename) 
     }
