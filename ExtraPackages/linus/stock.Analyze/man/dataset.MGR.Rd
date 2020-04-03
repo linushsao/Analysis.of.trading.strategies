@@ -2,9 +2,19 @@
 % Please edit documentation in R/dataset.MGR.R
 \name{dataset.MGR}
 \alias{dataset.MGR}
-\title{A for testing Function}
+\title{A dataset.MGR Function}
 \usage{
-dataset.MGR(dataset.name, verbose = FALSE)
+dataset.MGR(
+  dataset.name = FALSE,
+  col.name = NULL,
+  group = "stock.yahoo",
+  mode = "data",
+  file.extension = ".csv",
+  header = TRUE,
+  to.exts = FALSE,
+  online = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{x}{A numeric vector.}

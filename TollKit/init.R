@@ -1,8 +1,11 @@
 
-LIBRS <- c('quantmod','stringr','fTrading','xts','TTR','roxygen2')
+
+LIBRS <- c('quantmod','stringr','fTrading','xts','TTR')
 sapply(LIBRS,library,character.only=TRUE)
-#load local devel fubction
-setwd("/home/linus/ProjectStock/ExtraPackages/linus/stock.Analyze")
+
+#local devel fubction
+setwd( "/home/linus/Project/1_R/Analysis.of.trading.strategies/ExtraPackages/linus/stock.Analyze/" )
+library(roxygen2)
 roxygenize()
 library("stock.Analyze")
 

@@ -5,23 +5,23 @@ library("quantmod")
 library("xts")
 
 setwd("/home/linus/ProjectStock/all_stocks")
-#setwd("d:/R") #windowsåº•ä¸‹åŸ·è¡Œè«‹æ‹¿æ‰"#"
+#setwd("d:/R") #windows©³¤U°õ¦æ½Ğ®³±¼"#"
 
-#2382å»£é” /0050å°ç£50 /^TWIIå°ç£å¤§ç›¤æŒ‡æ•¸ /00677UVIX /00632R
-#^GSPC(SP500) ^DJI(é“ç“Š) YM=F(minié“ç“Š)
+#2382¼s¹F /0050¥xÆW50 /^TWII¥xÆW¤j½L«ü¼Æ /00677UVIX /00632R
+#^GSPC(SP500) ^DJI(¹DÃ£) YM=F(mini¹DÃ£)
 
-#å€‹è‚¡åƒæ•¸èª¿æ•´
+#­ÓªÑ°Ñ¼Æ½Õ¾ã
 stock_name <- "9910.TW" 
-sub_name <- ""                          #ä¸Šå¸‚.TW / ä¸Šæ«ƒ .TWO / ç©ºç™½è¡¨ç¤ºç‚ºæŒ‡æ•¸
+sub_name <- ""                          #¤W¥«.TW / ¤WÂd .TWO / ªÅ¥Õªí¥Ü¬°«ü¼Æ
 to_period <- "2020-03-25"
-emable_stock_local <- FALSE              #æ˜¯å¦(TRUE/FALSE)ä½¿ç”¨ç›®å‰è³‡æ–™,æˆ–æ˜¯å¾ç¶²è·¯ä¸‹è¼‰è‚¡ç¥¨è³‡æ–™ 
+emable_stock_local <- FALSE              #¬O§_(TRUE/FALSE)¨Ï¥Î¥Ø«e¸ê®Æ,©Î¬O±qºô¸ô¤U¸üªÑ²¼¸ê®Æ 
 
-#é¸æ“‡æ€§èª¿æ•´
-time_period <- "2000::2020"             #æœˆç§»å‹•ç·šé¡¯ç¤ºç¯„åœ
-time_period_daily <- "2015::2020" #æ—¥ç·šé¡¯ç¤ºç¯„åœ
+#¿ï¾Ü©Ê½Õ¾ã
+time_period <- "2000::2020"             #¤ë²¾°Ê½uÅã¥Ü½d³ò
+time_period_daily <- "2015::2020" #¤é½uÅã¥Ü½d³ò
 count_period <- paste("::",to_period,sep="")
 
-#ä»¥ä¸‹è«‹å‹¿èª¿æ•´===========================================
+#¥H¤U½Ğ¤Å½Õ¾ã===========================================
 value_fastK <- 9
 value_fastD <- 3
 value_slowD <- 3
@@ -57,9 +57,9 @@ data_TWII <- data_TWII[selected_period]
 head(data,3)
 tail(data,3)
 
-# æº–å‚™è¨ˆç®—è¸èŠ­æ¨‚çš„ç§»å‹•æœˆk ///
+# ·Ç³Æ­pºâ½îªİ¼Öªº²¾°Ê¤ëk ///
 KK_RAW <- c()
-ndate <- length(index(data)) #è¨ˆç®—è‚¡ç¥¨è³‡æ–™ç¸½ç­†æ•¸
+ndate <- length(index(data)) #­pºâªÑ²¼¸ê®ÆÁ`µ§¼Æ
 ndate
 j <- ndate
 i <- 0
@@ -94,7 +94,7 @@ ma_20<-runMean(data$Close,n=20)
 ma_60<-runMean(data$Close,n=60)
 ma_120<-runMean(data$Close,n=120)
 
-ma_10y<-na.omit(runMean(na.omit(K_mon$Close),n=120)) #å¤§ç›¤10å¹´ç·š
+ma_10y<-na.omit(runMean(na.omit(K_mon$Close),n=120)) #¤j½L10¦~½u
 
 #scale for TWII to fit into chart
 s_data <- sort(coredata(Cl(data)[time_period_daily]))
@@ -139,7 +139,7 @@ addTA(KD_RAW, col=c("red","green","grey"))
 addBBands()
 title(paste(stock_name,"-DAILY"),col.main="red")
 
-# \\\çµæŸ
+# \\\µ²§ô
 
 
 

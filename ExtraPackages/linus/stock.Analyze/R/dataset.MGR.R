@@ -1,4 +1,4 @@
-#' A for testing Function
+#' A dataset.MGR Function
 #'
 #' This function allows you to multi paste vector.
 #' @param x A numeric vector.
@@ -17,71 +17,91 @@
 # library("stock.Analyze")
 # 
 # setwd("/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stocks.preDownload/")
-dataset.MGR <- function(dataset.name,verbose=FALSE){
 
-# sub function <<<
-    msg<- function(v){
-        if( verbose ){
-            msg(v)
-            }
-        }
-        
-    if( dataset.name == "^GSPC") {
-            #GSPC
-        gspc <- function(){
-                file_name_csv <-  gsub(" ","",paste(dataset.name,".csv"))
-                GSPC <- read.csv(file_name_csv,header=TRUE)
-                GSPC <- xts(GSPC[,-c(1)],order.by=as.Date(GSPC$Index))
-                names(GSPC) <- c("Open","High","Low","Close","Volume","Adjusted")
-                return(GSPC)
-                }
-                return(gspc())
-                
-         }else if( dataset.name == "chap19.3.1") {
-         
-         chap19.3.1 <- function(){  
-                stocks.name <- c("600000","600016","600018","600028","600048")
-                stocks.code <- paste(stocks.name,"ss",sep=".")
+dataset.MGR <- function(dataset.name=FALSE, col.name=NULL, group="stock.yahoo", mode="data", file.extension=".csv", header=TRUE, to.exts=FALSE, online=FALSE, verbose=FALSE){
+ 
+    #configure <<<
+    if(! is.null(col.name) ) col.name <- tolower(col.name)
+    file.extension <- ".csv"
+    header.format <- c("Index","Open","High","Low","Close","Volume","Adjusted") 
+    names(header.format) <- tolower(header.format)
+    env.name <- "dataset.MGR"
+#     data.dir <- list(
+#             stock.yahoo = c("/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stocks.preDownload/Stock/") ,
+#             index.yahoo = c("/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stocks.preDownload/Index/") ,
+#             stock.twse  = c("/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/stock.price/1_raw.data/4_SpliteIntoSingleSTOCK/")
+#             )
+    #configure >>>
+    
+    # main function
+    main <- function() {
+#         browser()
+        switch(mode,
+            data = {    z.file <- get.Inquire.data()
+                        names(z.file) <- header.format
+                        z.index <- z.file[,c(1)] 
+                        if( !is.null(col.name) ) {
 
-                for(i in 1:length(stocks.code)) {
-                        v <- stocks.code[i]
-                        targetkFile <- paste(v,"csv",sep=".")
-                        if(! file.exists(targetkFile) ) {
-                            zero <- xts()
-                            zero <- getSymbols(v,auto.assign=FALSE)
-                            zero <- na.omit(xts(zero,order.by=as.Date(index(zero))))
-                            write.zoo(zero, file=targetkFile,sep=",")
-                            rm(zero)
-                            msg(c("DOWNLOADED FILE ",targetkFile))
-                            }
-                        data.singal <- xts()
-                        data.singal <- read.csv(targetkFile ,header=TRUE)
-                        data.singal <- na.omit(xts(data.singal[c(2:7)],order.by=as.Date(data.singal$Index)))
-                    # data.singal <- data.singal["2009:2013"]
-                        msg(c("PROCESSING FILE ",targetkFile))
-    #                       names(data.singal) <- c("Open","High","Low","Close","Volume","Adjusted")
-                        data.singal.Cl <- Cl(data.singal)
-                        if ( i != 1 ) {
-                            data.all <- merge(data.all, data.singal.Cl)
+                            z.file <- z.file[ header.format[col.name] ]
                             }else{
-                            data.all <-  data.singal.Cl
+                            
+                            z.file <- z.file[,-c(1)]
                             }
-                        msg(c("MERGED FILE ",i,targetkFile))
-                        }
-                    return(data.all)
-                }
-            return(chap19.3.1())
-            
+            #             browser()                  
+                        if( to.exts ) z.file <- xts(z.file, order.by=as.Date(z.index))
+                    
+                        result <- z.file
+                        return(result)
+                        },
+            path =  { return(data.path(group)) }
+        )
     }
-}
+                
+            # sub function <<<
+            msg<- function(v){
+                if( verbose ){
+                    m_msg(v)
+                    }
+                }
+                
+            data.path <- function(group){
+#                             browser()
+#                             result <- data.dir[[group]]
+                            result <- get.conf(name=group,env.name=env.name)
+#                             path <- switch(group,
+#                                 stock.yahoo = data.dir[["stock.yahoo"]] ,
+#                                 stock.twse = data.dir[["stock.twse"]] 
+#                                 )
+                            return(result)
+                    }
+            
+            get.Inquire.data <- function(){
+                    file_name_csv <-  m_paste(c(data.path(group), dataset.name, file.extension), op="")
+                    z.file <- read.csv(file_name_csv, header=header, sep=",")
+                    #z.file <- xts(z.file[,-c(1)],order.by=as.Date(z.file$Index))
 
-#
+                    return(z.file)
+                }
+            # sub function >>>
+            
+    ## execute main functrion
+    main()
+
+}
+# 
+# 
 # stop()
+# 
 # rm(list=ls())
-# #
-# setwd("/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stocks.preDownload/")
-# a <- dataset.MGR("chap19.3.1")
-# # 
+# # #
+# # setwd("/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stocks.preDownload/")
+# a <- (dataset.MGR("^GSPC",group="index.yahoo"))
+# head(a)
+# a <- (dataset.MGR("^GSPC",col.name="close",group="index.yahoo"))
+# head(a)
+# a <- (dataset.MGR(group="index.yahoo", mode="path"))
+# a
+
 # stocks.name <- c("600000","600016","600018","600028","600048")
 # stocks.code <- paste(stocks.name,"ss",sep=".")
 # zero.xts <- xts()

@@ -1,4 +1,4 @@
-#' A message Function
+#' A multi sort Function
 #'
 #' This function allows you to multi paste vector.
 #' @param x A numeric vector.
@@ -7,9 +7,9 @@
 #' @examples
 #' median_function(seq(1:10))
 
-m_msg <- function(v, order="%b%d %X"){
-    
-    result <- m_paste(c("[",format(Sys.time(), order),"]", v),op=" ")
-    print(result)
-    
+get.conf <- function(name,env.name="env"){
+
+    result <- m_env(name=name,mode="r",dataset=env.name)
+
+    return(result)
 }

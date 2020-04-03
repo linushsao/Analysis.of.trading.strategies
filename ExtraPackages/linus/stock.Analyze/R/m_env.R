@@ -25,9 +25,14 @@ m_env <- function(name=NULL,value=NULL,mode="init_list",dataset="env") {
 
     # function <<
 
-    env.add.newname <- function(v){
+    env.add.colname <- function(v){
         config <- read.csv(conf_name,header=FALSE)[-c(1),-c(1)] 
-        config <- cbind(config, rep("_", length(config[,1])))
+        new.col <- rep("_", length(config[,1]))
+        names(new.col) <- name
+        config <- cbind(config, new.col)
+        result <- config
+        write.csv(result,file=name)
+        
         return(result)
         }
     
@@ -182,8 +187,8 @@ m_env <- function(name=NULL,value=NULL,mode="init_list",dataset="env") {
         result <- config
     }else if(mode == "init_list") {
          #do nothing
-    }else if(mode == "add.newname") {
-        config <- env.add.newname(name)
+    }else if(mode == "add.colname") {
+        config <- env.add.colname(name)
         result <- config
         }else if(mode == "db_list") {
             result  <- dataset
@@ -252,7 +257,9 @@ m_env <- function(name=NULL,value=NULL,mode="init_list",dataset="env") {
 # (m_env(name="ORDER",value="BANANA",mode="d"))
 # (m_env(name="list",mode="d"))
 # 
+# m_env(dataset="new")
 # (m_env(name="list",value="NO",mode="w",dataset="new"))
+# (m_env(name="list",mode="r",dataset="new"))
 # (m_env(name="list",value="YES",mode="w",dataset="new"))
 # (m_env(name="ORDER",value="FRUIT",mode="w",dataset="new"))
 # (m_env(name="ORDER",value="BANANA",mode="w",dataset="new"))
@@ -260,7 +267,8 @@ m_env <- function(name=NULL,value=NULL,mode="init_list",dataset="env") {
 # (m_env(name="ORDER",value="BANANA",mode="d",dataset="new"))
 # (m_env(name="list",mode="d",dataset="new"))
 # 
-# 
+# (m_env(name="index.yahoo",mode="r",dataset="dataset.MGR"))
+# # 
 # 
 # head(m_env(name="prefix.raw.data.name",mode="d"))
 # head(m_env(mode="init_list"))
