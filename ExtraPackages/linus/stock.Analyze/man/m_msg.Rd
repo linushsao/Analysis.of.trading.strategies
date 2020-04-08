@@ -4,7 +4,7 @@
 \alias{m_msg}
 \title{A message Function}
 \usage{
-m_msg(v, order = "\%b\%d \%X")
+m_msg(info, order = "\%b\%d \%X", action = "msg")
 }
 \arguments{
 \item{x}{A numeric vector.}

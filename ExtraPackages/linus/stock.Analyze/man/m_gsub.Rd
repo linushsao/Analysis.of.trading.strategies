@@ -4,7 +4,7 @@
 \alias{m_gsub}
 \title{A multi gsub Function}
 \usage{
-m_gsub(be_replace, patten, v, op = "")
+m_gsub(be_replace, patten, v)
 }
 \arguments{
 \item{x}{A numeric vector.}

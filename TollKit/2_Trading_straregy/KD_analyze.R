@@ -11,9 +11,9 @@ setwd("/home/linus/ProjectStock/all_stocks")
 #^GSPC(SP500) ^DJI(道瓊) YM=F(mini道瓊)
 
 #個股參數調整
-stock_name <- "9910.TW" 
+stock_name <- "^DJI" 
 sub_name <- ""                          #上市.TW / 上櫃 .TWO / 空白表示為指數
-to_period <- "2020-03-25"
+to_period <- "2020-04-06"
 emable_stock_local <- FALSE              #是否(TRUE/FALSE)使用目前資料,或是從網路下載股票資料 
 
 #選擇性調整
@@ -88,13 +88,6 @@ head(K_mon,3)
 tail(K_mon,3)
 length(index(K_mon))
 
-ma_5<-runMean(data$Close,n=5)
-ma_10<-runMean(data$Close,n=10)
-ma_20<-runMean(data$Close,n=20)
-ma_60<-runMean(data$Close,n=60)
-ma_120<-runMean(data$Close,n=120)
-
-ma_10y<-na.omit(runMean(na.omit(K_mon$Close),n=120)) #大盤10年線
 
 #scale for TWII to fit into chart
 s_data <- sort(coredata(Cl(data)[time_period_daily]))
@@ -119,25 +112,33 @@ title(paste(stock_name,"-MONTHLY"),col.main="red")
 View(tail(KD_TREND,40))
 
 #stop()
-
+data <- to.monthly(data)
 KD_RAW <- na.omit(stoch(HLC(data[paste("::",to_period,sep="")]),nFastK = value_fastK, nFastD = value_fastD, nSlowD = value_slowD))
-KD_DAILY <- KD_RAW$fastK-KD_RAW$fastD
-names(KD_DAILY) <- "K-D(DAILY)"
-head(KD_DAILY)
+# KD_DAILY <- KD_RAW$fastK-KD_RAW$fastD
+# names(KD_DAILY) <- "K-D(Normal Monthly)"
+# head(KD_DAILY)
+
+# ma_5<-runMean(data$Close,n=5)
+# ma_10<-runMean(data$Close,n=10)
+# ma_20<-runMean(data$Close,n=20)
+# ma_60<-runMean(data$Close,n=60)
+# ma_120<-runMean(data$Close,n=120)
+
+# ma_10y<-na.omit(runMean(na.omit(K_mon$Close),n=120)) #大盤10年線
 
 windows()
 chartSeries(data[time_period_daily],theme="white",up.col="red",dn.col="green")
-addTA(ma_5,col="sienna",on=1)
-addTA(ma_10,col="orange",on=1)
-addTA(ma_20,col="purple",on=1)
-addTA(ma_60,col="green",on=1)
-addTA(ma_120,col="blue",on=1)
-addTA(ma_10y,col="red",on=1)
+# addTA(ma_5,col="sienna",on=1)
+# addTA(ma_10,col="orange",on=1)
+# addTA(ma_20,col="purple",on=1)
+# addTA(ma_60,col="green",on=1)
+# addTA(ma_120,col="blue",on=1)
+# addTA(ma_10y,col="red",on=1)
 
 addTA(Cl(data_TWII)*scale_n,col="red")
 addTA(KD_RAW, col=c("red","green","grey"))
 addBBands()
-title(paste(stock_name,"-DAILY"),col.main="red")
+title(paste(stock_name,"-Normal Monthly"),col.main="red")
 
 # \\\結束
 

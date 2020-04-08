@@ -4,7 +4,7 @@
 \alias{generator.of.stockData}
 \title{A generator.of.stockDat Function}
 \usage{
-generator.of.stockData(select.tranSet.period, working.dir = NULL)
+generator.of.stockData(select.tranSet.period = NULL, stock.data.path = NULL)
 }
 \arguments{
 \item{x}{A numeric vector.}

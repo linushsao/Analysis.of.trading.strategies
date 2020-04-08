@@ -95,7 +95,7 @@ main <- function(action, filter) {
                         z.file <- read.csv(stock.name.cvs,header=TRUE,sep=",")[,-c(1)]
                         z.in.file.date <- z.file[length(z.file[,1]),1]
                         z.in.file.date <- as.Date(ifelse( (is.null(z.in.file.date) || is.na(z.in.file.date)), as.Date(write.in.date)-1, as.Date(z.in.file.date)))
-
+                        browser()
                         if (z.in.file.date < write.in.date) {
                             z.collect <- cbind(stock.date,data.1[i,]) #data will be merged into stock data
 

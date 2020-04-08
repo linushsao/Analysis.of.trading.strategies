@@ -8,16 +8,17 @@
 #' median_function(seq(1:10))
 
 
-generator.of.stockData <- function( select.tranSet.period, working.dir=NULL) {
+generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=NULL) {
 
     generate.debug.data <- as.logical(m_env(name="generate.debug.data",mode="r"))
     research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 
-    all.code.List <- env(name="all.code.List",mode="r")
-    prefix.stock.extension <- env(name="prefix.stock.extension",mode="r")
-    prefix.raw.data.name <- env(name="prefix.raw.data.name",mode="r")
+    all.code.List <- m_env(name="all.code.List",mode="r")
+    prefix.stock.extension <- m_env(name="prefix.stock.extension",mode="r")
+    prefix.raw.data.name <- m_env(name="prefix.raw.data.name",mode="r")
+    stock.selected.Files_Extension <- m_env(name="stock.selected.Files_Extension",mode="r")
     prefix.debug.data.name <- "debug."
-    raw.data.Listname <- env(name="raw.data.Listname",mode="r")
+    raw.data.Listname <- m_env(name="raw.data.Listname",mode="r")
     debug.data.Listname <- "debug.data.List.csv"
     debug.selected.stock.name <- c("600000.ss","600016.ss","600018.ss","600028.ss","600048.ss")
     safe_rate <- 0.015 
@@ -37,7 +38,7 @@ generator.of.stockData <- function( select.tranSet.period, working.dir=NULL) {
             
             for(i in 1:length(name)) {
                 name[i]-> symbol
-                file_name <- m_paste(c(working.dir, symbol, ".csv"), op="") 	
+                file_name <- m_paste(c(stock.data.path, symbol, ".csv"), op="") 	
                 
                 tryit <- try(read.csv(file_name,header=TRUE))
                 
@@ -75,17 +76,16 @@ generator.of.stockData <- function( select.tranSet.period, working.dir=NULL) {
         }else{
 
             KK_RAW <- c()
-            
-            if( length(select.tranSet.period) != 0) { #reset raw.data.Listname
-                env(name="raw.data.Listname",value=raw.data.Listname,mode="w")
-                write.csv(select.tranSet.period,file=raw.data.Listname)
+            if( is.null(select.tranSet.period) ) { #custom raw.data.Listname
+                select.tranSet.period <- read.csv(raw.data.Listname, header=TRUE,sep=",")[,2]
+                select.tranSet.period <- m_gsub(c(prefix.raw.data.name, stock.selected.Files_Extension),c(""),select.tranSet.period)
                 }
                 
-            select.tranSet.period <- as.vector(read.csv(raw.data.Listname , header=TRUE, sep=",")[,2])
+#             select.tranSet.period <- as.vector(read.csv(raw.data.Listname , header=TRUE, sep=",")[,2])
             stock_ignore <- c("1729","2025","2384","6131","6205","8201","9106") 
 
-            m_data1 <- read.csv(paste(working.dir, all.code.List,sep=""), header=TRUE, sep=",")
-            m_data <- m_data1
+            m_data <- read.csv(paste(stock.data.path, all.code.List,sep=""), header=TRUE, sep=",")
+#             m_data <- m_data1
             name <- paste(m_data[,1],prefix.stock.extension, sep = "") 
             name_c <- as.vector(m_data[,2])
             name_group <- as.vector(m_data[,5])
@@ -97,7 +97,7 @@ generator.of.stockData <- function( select.tranSet.period, working.dir=NULL) {
                 
                 for(i in 1:length(name)) {
                     name[i]-> symbol
-                    file_name <- m_paste(c(working.dir, symbol,".csv"), op="") 	
+                    file_name <- m_paste(c(stock.data.path, symbol,".csv"), op="") 	
                     tryit <- try(read.csv(file_name,header=TRUE))
 
                     if(inherits(tryit, "try-error") | (gsub(prefix.stock.extension,"",symbol) %in% stock_ignore) ){
@@ -124,7 +124,8 @@ generator.of.stockData <- function( select.tranSet.period, working.dir=NULL) {
                 }
 
                 raw.data.List[range] <- m_paste(c(prefix.raw.data.name,selected_period,".csv"),op="")
-                colnames(KK_RAW) <- c("STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO","Record_Start")
+                title <- c("STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO","Record_Start")
+                colnames(KK_RAW) <-  title
                 write.zoo(KK_RAW,file=paste(research.path.of.linus, raw.data.List[range],sep=""),sep=",")
                 #View(KK_RAW)
             }
@@ -132,6 +133,8 @@ generator.of.stockData <- function( select.tranSet.period, working.dir=NULL) {
         write.csv(raw.data.List,file=paste(research.path.of.linus, raw.data.Listname, sep=""))
     }
 
+    return( raw.data.List )
+    
 }
 
 

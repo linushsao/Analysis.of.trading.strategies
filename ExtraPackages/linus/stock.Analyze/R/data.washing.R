@@ -7,7 +7,7 @@
 #' @examples
 #' median_function(seq(1:10))
 
-data_Washing <- function() {
+data.washing <- function() {
 
     #stocks data path
     setwd("/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stocks.preDownload/")
@@ -122,6 +122,7 @@ data_Washing <- function() {
     file_name <- washed.List[1]
     zero <- m_env(name="backtest.name",value=file_name  ,mode="w")
 
+    return( washed.List )
 }
 
 

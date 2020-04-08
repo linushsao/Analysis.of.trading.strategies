@@ -7,46 +7,36 @@
 #' @examples
 #' median_function(seq(1:10))
 
-m_gsub <- function(be_replace,patten,v,op=""){
+m_gsub <- function(be_replace, patten, v){
 
-#testing
-# v <- c("abcd","abcd","abcd","abcd")
-# be_replace <- c("a","b")
-# patten <- c("+","*")
-
-    r1 <- length(be_replace)
-    r2 <- length(patten)
+    be.num <- length(be_replace)
+    pa.num <- length(patten)
+    if( be.num == pa.num ) {
     
-    r <- max(r1,r2)
-    j <- 0
-    for(i in 1:r){
-        if((i <= r1) || (i <=r2)){
-            j=j+1
-#             p <- ifelse(r2==0,"",patten[i])
-            if(i>r2) {
-                j=1
-                p <- patten[j]
-            }else if(r2==0){
-                p <- ""
-            }else{
-                p <- patten[j]
+        for(i in 1:be.num){
+            v <- gsub(be_replace[i] ,patten[i] ,v)
             }
-            v <- gsub(be_replace[i] ,p ,v)
+        }else{
+        
+            print(c("length of be_replace :",be.num))
+            print(c("length of patten :",pa.num))
+            print("error: length of be_replace must be equal with patten.")
+            v <- NULL
         }
-    }
+    
     return(v)
  }
  
- #testing
+#  testing
 #  stop()
 #  
 # v <- c("abcd","abcd","abcd","abcd")
+# 
 # be_replace <- c("a","b")
-# be_replace <- c("a")
 # patten <- c("+","*")
 # patten <- c("+")
 # m_gsub(be_replace,patten,v)
-#   
+# # #   
 #   b <- c()
 #  a <- c()
 #  length(a)

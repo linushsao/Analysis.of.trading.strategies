@@ -8,7 +8,7 @@
 #' median_function(seq(1:10))
 
 
-muti_backtest <- function() {
+muti_backtest <- function(default.backtest_num=c(50,5),  default.trading.straregy_type=c(2,80,20,80,20), default.ef_goal_return=0.001) {
 
     # file for Analyze
     research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
@@ -23,6 +23,9 @@ muti_backtest <- function() {
     tranSet_period <- as.vector(read.csv(tranSet_period_list,header=TRUE,sep=",")[,c(2)])
     tranSet_period <- gsub(".csv","",gsub("RAW.","",tranSet_period)) #data format
 
+#   tranSet_period <- c(m_env(name="raw.data.Listname",mode="r")) %>% read.csv(file=. ,header=TRUE,sep=",") %>% .[,2] %>% gsub("RAW.","", .) %>% gsub(".csv","", .) 
+    
+    
     #basic options
     #1.是否(TRUE/FALSE)使用除錯模式，將以testing data取代
     #2.what test data
@@ -31,23 +34,21 @@ muti_backtest <- function() {
     #
     enable_latestPrice<- TRUE          #是否(TRUE/FALSE)從網路下載股票資料
 
-    enable_reandom_stocks <- TRUE      #是否(TRUE/FALSE)使用亂數選擇一定支數股票為實驗組TESTING GROUP
-    backtest_num <- c(50,5) #c(n,m),於報酬率前n名中取m名股票編號
+    enable_reandom_stocks <- get.conf(name="enable_reandom_stocks" ,default.conf=FALSE) #是否(TRUE/FALSE)使用亂數選擇一定支數股票為實驗組TESTING GROUP
+    backtest_num <- get.conf(name="backtest_num" ,default.conf=default.backtest_num) #c(n,m),於報酬率前n名中取m名股票編號
+#     enable_control_group <- get.conf(name="enable_control_group" ,default.conf=TRUE)        #是否(TRUE/FALSE)使用亂數對照組
+#     enable_singal_chart <- get.conf(name="enable_singal_chart" ,default.conf=TRUE)        #是否(TRUE/FALSE)顯示個別股票分析圖表
+#     enable_simple_chart <- get.conf(name="enable_simple_chart" ,default.conf=TRUE)        #只顯示走勢圖，無回測圖及資料表格
 
-    enable_control_group <- TRUE        #是否(TRUE/FALSE)使用亂數對照組
-    enable_singal_chart <- FALSE        #是否(TRUE/FALSE)顯示個別股票分析圖表
-    enable_simple_chart <- FALSE        #只顯示走勢圖，無回測圖及資料表格
+    trading.straregy_type <- get.conf(name="trading.straregy_type" ,default.conf=default.trading.straregy_type)  #(交易策略1=KD based R,2=KD based KDvalue,3=KD based KDJvalue,其他交易策略參數)
 
-    trading.straregy_type <- c(2,80,20,80,20)  #(交易策略1=KD based R,2=KD based KDvalue,3=KD based KDJvalue,其他交易策略參數)
+    enable_fund_allocation <- get.conf(name="enable_fund_allocation" ,default.conf=TRUE)     #是否(TRUE/FALSE)使用資產配置理論
+    ef_goal_return <- as.numeric(get.conf(name="ef_goal_return" ,default.conf=default.ef_goal_return))              #效率前緣做資產配置之**每日**預期報酬率
 
-    enable_fund_allocation <- TRUE     #是否(TRUE/FALSE)使用資產配置理論
-    ef_goal_return <- 0.001               #效率前緣做資產配置之**每日**預期報酬率
-
-    enable_ef_simulation <- TRUE        #快速模擬n種配置
-    ef_simulation_num <- m_env(name="ef_simulation_num",mode="r")  #快速模擬n種配置之次數
-    enable_ef_simulation.record <- TRUE
+    enable_ef_simulation <- get.conf(name="enable_ef_simulation" ,default.conf=TRUE)        #快速模擬n種配置
+    ef_simulation_num <- as.numeric(m_env(name="ef_simulation_num",mode="r"))  #快速模擬n種配置之次數
+    enable_ef_simulation.record <- get.conf(name="enable_ef_simulation.record" ,default.conf=TRUE)
     simulation.record.filename <- m_env(name="simulation.record.filename",mode="r")  #模擬配置儲存檔名
-
     #
     if( as.logical(enable_debug_mode[1]) ){
         if( enable_debug_mode[2] == 1) { 
@@ -148,7 +149,8 @@ muti_backtest <- function() {
                     sim_cum_return <- cumprod( 1+sim_return )
 
                     plot.xts(merge(sim_cum_return,test_cum_return),col=c(rep("lightgreen",100),"red"),screens=1)               
-            }#### EXAMPLE in BOOK for DEBUG >>
+            }
+            #### EXAMPLE in BOOK for DEBUG >>
             train_set <- sh_return["2009-01-01/2012-12-31"]
             test_set <- sh_return["2013-01-01/2013-03-31"]
             head(train_set)
@@ -188,7 +190,6 @@ muti_backtest <- function() {
                     plot.xts(merge(sim_cum_return,test_cum_return),col=c(rep("lightgreen",100),"red"),screens=1) 
     ###
         }
-        stop()
     }
 
     #
@@ -249,24 +250,21 @@ muti_backtest <- function() {
     #        KDtrade <- stock.CumulativeRate(data,strategy_type=trade_type,trade_trigger=trade_param)[testSet_period[1]]
             KDtrade <- stock.CumulativeRate(data[testSet_period],strategy_type=trade_type,trade_trigger=trade_param)[testSet_period[1]]        
             close <- data$Close
-        #
+
             Ret <- KDtrade[,1] 
             tradeRet <- KDtrade[,2]
-
-            if (enable_singal_chart){
-            windows()
-            backtest(Ret,tradeRet,stock_name)
-            }
-            #record all rate of stocks
+#             if (enable_singal_chart){
+#                 windows()
+#                 backtest(Ret,tradeRet,stock_name)
+#             }
+#           #record all rate of stocks
             return_ret <- Ret
-            names(return_ret) <- stock_name
+            names(return_ret) <- paste(stock_name,"ret",sep="_")
             return_traderet <- tradeRet
-            names(return_traderet) <- stock_name
-            names(close) <- stock_name
+            names(return_traderet) <- paste(stock_name,"traderet",sep="_")
+            names(close) <- paste(stock_name,"close",sep="_")
             
         #for TestSet
-    #     all_RET <- cbind(all_RET,return_ret[testSet_period]) #raw rate,combine all selected stocks
-    #     all_tradeRET <- cbind(all_tradeRET,return_traderet[testSet_period]) #relatived to KDSignal
         all_RET <- cbind(all_RET,return_ret) #raw rate,combine all selected stocks
         all_tradeRET <- cbind(all_tradeRET,return_traderet) #relatived to KDSignal
 
@@ -274,7 +272,7 @@ muti_backtest <- function() {
         all_stock_closeprice <- cbind(all_stock_closeprice,close)
     
     }
-    write.csv(KDtrade,file="check_KDTrade.csv")
+#     write.csv(KDtrade,file=".check_KDTrade.csv")
     #End of Function
     #default portfolio =1
     # names(all_stock_closeprice) <- select_stock
@@ -284,7 +282,7 @@ muti_backtest <- function() {
     Trading.straregy_method <-  xts(apply(all_tradeRET,1,sum),order.by=index(all_tradeRET)) / length(select_stock) #加上使用交易策略（此為KD)
     names(Trading.straregy_method ) <- "AVERAGE"
 
-    write.csv(merge(BuyHold,Trading.straregy_method),file="check_KDTrade1.csv")
+#     write.csv(merge(BuyHold,Trading.straregy_method),file=".check_KDTrade1.csv")
 
     #使用資產配置理論(效率前緣)
     if (enable_fund_allocation) {
@@ -314,14 +312,14 @@ muti_backtest <- function() {
     all_returen <- na.omit(merge(BuyHold$AVERAGE,Trading.straregy_method$AVERAGE,fund.Allocation_method$AVERAGE)[testSet_period])
     names(all_returen) <- c("BuyHold","Trading.straregy_method","fund.Allocation_method")
 
-    title <- m_paste(c(ifelse(enable_fund_allocation,"(F.A.)",""),"BACKTEST of Stock:",as.character(m_paste(get.stock_chinesename[backtestSet_period]))),op="")
+#     title <- m_paste(c(ifelse(enable_fund_allocation,"(F.A.)",""),"BACKTEST of Stock:",as.character(m_paste(get.stock_chinesename[backtestSet_period]))),op="")
                                 
-    if (enable_simple_chart){
-        windows()
-        backtest(all_returen$BuyHold,all_returen$Trading.straregy_method,title)
-        windows()
-        backtest(all_returen$BuyHold,all_returen$fund.Allocation_method,title)
-    }
+#     if (enable_simple_chart){
+#         windows()
+#         backtest(all_returen$BuyHold,all_returen$Trading.straregy_method,title)
+#         windows()
+#         backtest(all_returen$BuyHold,all_returen$fund.Allocation_method,title)
+#     }
 
     asset_1 <- cumprod(1+all_returen$BuyHold)
     asset_2 <- cumprod(1+all_returen$Trading.straregy_method)
@@ -337,14 +335,14 @@ muti_backtest <- function() {
 #     plot(all_assets,col=c("black","blue","green"),main=title_2,title,sep="")
 #     #legend("topright",legend=c("BuyHold","Trading.straregy_method","fund.Allocation_method"),col=c("black","red","green"),lty=c(1,1,1))
 
-    if (enable_simple_chart){
-        View(tail(all_returen,20))
-        View(tail(cumsum(all_returen),20))
-        View(tail(all_assets,20))
-    }
-
-    summary(all_returen)
-    summary(all_assets)
+#     if (enable_simple_chart){
+#         View(tail(all_returen,20))
+#         View(tail(cumsum(all_returen),20))
+#         View(tail(all_assets,20))
+#     }
+# 
+#     summary(all_returen)
+#     summary(all_assets)
 
 
     #simulation for rate of others random portfolio
@@ -434,7 +432,7 @@ muti_backtest <- function() {
 
 #     z.cor
 
-    result <- list(all.stock.name=get.stock_chinesename[backtestSet_period], trading.straregy=trading.straregy_type, all.return=all_returen, all.assets=all_assets, all.sim.assets=sim_cum_return)
+    result <- list(all.stock.name=get.stock_chinesename[backtestSet_period], trading.straregy=trading.straregy_type, all.stock.close=all_stock_closeprice,all.stock.ret=all_RET,all.stock.traderet=all_tradeRET,all.return=all_returen, all.assets=all_assets, all.sim.assets=sim_cum_return)
     return(result)
     
 }
