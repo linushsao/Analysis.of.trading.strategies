@@ -5,6 +5,8 @@
 \title{A muti_backtestt Function}
 \usage{
 muti_backtest(
+  default.testSet.period,
+  stock.data.path,
   default.backtest_num = c(50, 5),
   default.trading.straregy_type = c(2, 80, 20, 80, 20),
   default.ef_goal_return = 0.001

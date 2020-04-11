@@ -8,20 +8,23 @@
 #' median_function(seq(1:10))
 
 
-muti_backtest <- function(default.backtest_num=c(50,5),  default.trading.straregy_type=c(2,80,20,80,20), default.ef_goal_return=0.001) {
+muti_backtest <- function(default.testSet.period, stock.data.path, default.backtest_num=c(50,5),  default.trading.straregy_type=c(2,80,20,80,20), default.ef_goal_return=0.001) {
 
+    #
+    prefix.raw.data.name <- m_env(name="prefix.raw.data.name",mode="r")
     # file for Analyze
     research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 
     #for select stocks
     selected.stock.name_csv <- m_env(name="backtest.name",mode="r")    #Codelist for chosen stocks
-    debug.selected.stock.name_csv <- c("600000.ss.csv","600016.ss.csv","600018.ss.csv","600028.ss.csv","600048.ss.csv")
+#     debug.selected.stock.name_csv <- c("600000.ss.csv","600016.ss.csv","600018.ss.csv","600028.ss.csv","600048.ss.csv")
     #for TestSET
-    testSet_period <- c(m_env(name="basktest.period",mode="r")) #for TestSET
+#     testSet_period <- c(m_env(name="basktest.period",mode="r")) #for TestSET
+    testSet_period <- default.testSet.period #for TestSET
     #for TrainSET
     tranSet_period_list  <- c(m_env(name="raw.data.Listname",mode="r"))
     tranSet_period <- as.vector(read.csv(tranSet_period_list,header=TRUE,sep=",")[,c(2)])
-    tranSet_period <- gsub(".csv","",gsub("RAW.","",tranSet_period)) #data format
+    tranSet_period <- m_gsub(c(research.path.of.linus, ".csv", prefix.raw.data.name),c("","",""),tranSet_period) #data format
 
 #   tranSet_period <- c(m_env(name="raw.data.Listname",mode="r")) %>% read.csv(file=. ,header=TRUE,sep=",") %>% .[,2] %>% gsub("RAW.","", .) %>% gsub(".csv","", .) 
     
@@ -194,7 +197,7 @@ muti_backtest <- function(default.backtest_num=c(50,5),  default.trading.strareg
 
     #
     #Data prepare
-    data_RAW_ALL <- read.csv(paste(research.path.of.linus, selected.stock.name_csv, sep="") ,header=TRUE)
+    data_RAW_ALL <- read.csv(selected.stock.name_csv, header=TRUE)
     names(data_RAW_ALL) <- c("INDEX","STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","GROUP","TYPE")
     get.stock_code <- as.vector(data_RAW_ALL$STOCK_CODE)
     get.stock_chinesename <- as.vector(data_RAW_ALL$STOCK_NAME)
@@ -237,6 +240,7 @@ muti_backtest <- function(default.backtest_num=c(50,5),  default.trading.strareg
                     z.temp <- m_msg(paste(stock_name," download fail,ignore...",sep=""))
                 }
             }
+
             
             #file_name <-  gsub(" ","",paste(stock_name,sub_name))
             data_RAW <- read.csv(file_name_csv,header=TRUE) #read selected stocks data
@@ -297,6 +301,7 @@ muti_backtest <- function(default.backtest_num=c(50,5),  default.trading.strareg
                 tranSet_data <- rbind(tranSet_data,temp_data)
                 }
         }
+        tranSet_data <- na.omit(tranSet_data)
         portfolio <- ef.fund.Allocation(tranSet_data, ef_goal_return)
         portfolio_weight <-  portfolio[3:length(portfolio)]
         all_tradeRET_weight <- all_RET %*% portfolio_weight
@@ -304,44 +309,43 @@ muti_backtest <- function(default.backtest_num=c(50,5),  default.trading.strareg
         all_tradeRET_weight <- all_RET 
         }
 
-    all_tradeRET_weight <- xts(all_tradeRET_weight ,order.by=index(all_tradeRET))
+        all_tradeRET_weight <- xts(all_tradeRET_weight ,order.by=index(all_tradeRET))
     # fund.Allocation_method <- as.data.frame(all_tradeRET_weight)
     fund.Allocation_method <- all_tradeRET_weight
     names(fund.Allocation_method) <- "AVERAGE" #加上使用資產配置理論
 
-    all_returen <- na.omit(merge(BuyHold$AVERAGE,Trading.straregy_method$AVERAGE,fund.Allocation_method$AVERAGE)[testSet_period])
-    names(all_returen) <- c("BuyHold","Trading.straregy_method","fund.Allocation_method")
+    all_return <- na.omit(merge(BuyHold$AVERAGE,Trading.straregy_method$AVERAGE,fund.Allocation_method$AVERAGE)[testSet_period])
+    names(all_return) <- c("BuyHold","Trading.straregy_method","fund.Allocation_method")
 
 #     title <- m_paste(c(ifelse(enable_fund_allocation,"(F.A.)",""),"BACKTEST of Stock:",as.character(m_paste(get.stock_chinesename[backtestSet_period]))),op="")
                                 
 #     if (enable_simple_chart){
 #         windows()
-#         backtest(all_returen$BuyHold,all_returen$Trading.straregy_method,title)
+#         backtest(all_return$BuyHold,all_return$Trading.straregy_method,title)
 #         windows()
-#         backtest(all_returen$BuyHold,all_returen$fund.Allocation_method,title)
+#         backtest(all_return$BuyHold,all_return$fund.Allocation_method,title)
 #     }
 
-    asset_1 <- cumprod(1+all_returen$BuyHold)
-    asset_2 <- cumprod(1+all_returen$Trading.straregy_method)
-    asset_3 <- cumprod(1+all_returen$fund.Allocation_method)
+    asset_1 <- cumprod(1+all_return$BuyHold)
+    asset_2 <- cumprod(1+all_return$Trading.straregy_method)
+    asset_3 <- cumprod(1+all_return$fund.Allocation_method)
 
     all_assets <- merge(asset_1,asset_2,asset_3)
 
-  
 #     windows()
 #     par(mfrow=c(2,1))
-#     plot(all_returen,col=c("black","blue","green"),main=title_1,sep="")
+#     plot(all_return,col=c("black","blue","green"),main=title_1,sep="")
 #     #legend("topright",legend=c("BuyHold","Trading.straregy_method","fund.Allocation_method"),col=c("black","red","green"),lty=c(1,1,1))
 #     plot(all_assets,col=c("black","blue","green"),main=title_2,title,sep="")
 #     #legend("topright",legend=c("BuyHold","Trading.straregy_method","fund.Allocation_method"),col=c("black","red","green"),lty=c(1,1,1))
 
 #     if (enable_simple_chart){
-#         View(tail(all_returen,20))
-#         View(tail(cumsum(all_returen),20))
+#         View(tail(all_return,20))
+#         View(tail(cumsum(all_return),20))
 #         View(tail(all_assets,20))
 #     }
 # 
-#     summary(all_returen)
+#     summary(all_return)
 #     summary(all_assets)
 
 
@@ -356,11 +360,11 @@ muti_backtest <- function(default.backtest_num=c(50,5),  default.trading.strareg
 
         sim_return <- sapply(1:L,FUN=function(i){
             weight <- sim_weight[i,]
-            sim_ret <- (all_RET) %*% weight
+            sim_ret <- na.omit(all_RET) %*% weight
             return(sim_ret)
             })
 
-        sim_return <- (xts(sim_return,order.by=index(all_RET)))
+        sim_return <- (xts(sim_return,order.by=index(na.omit(all_RET))))
         sim_cum_return <- cumprod( 1+sim_return )
 
 #         windows()
@@ -431,8 +435,8 @@ muti_backtest <- function(default.backtest_num=c(50,5),  default.trading.strareg
         }
 
 #     z.cor
-
-    result <- list(all.stock.name=get.stock_chinesename[backtestSet_period], trading.straregy=trading.straregy_type, all.stock.close=all_stock_closeprice,all.stock.ret=all_RET,all.stock.traderet=all_tradeRET,all.return=all_returen, all.assets=all_assets, all.sim.assets=sim_cum_return)
+    stock.name <- data.frame(select_stock, get.stock_chinesename[backtestSet_period])
+    result <- list(all.stock.name=stock.name, trading.straregy=trading.straregy_type, tranSet_data=tranSet_data,all.stock.ret=all_RET,all.stock.traderet=all_tradeRET,all.return=all_return, all.assets=all_assets, all.sim.assets=sim_cum_return)
     return(result)
     
 }

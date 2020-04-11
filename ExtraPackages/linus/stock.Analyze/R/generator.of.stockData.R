@@ -23,7 +23,7 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
     debug.selected.stock.name <- c("600000.ss","600016.ss","600018.ss","600028.ss","600048.ss")
     safe_rate <- 0.015 
     raw.data.List <- c()
-
+    stock_ignore <- c("1729","2025","2384","6131","6205","6283","8201","9106") 
 
     # main function
 
@@ -82,7 +82,6 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
                 }
                 
 #             select.tranSet.period <- as.vector(read.csv(raw.data.Listname , header=TRUE, sep=",")[,2])
-            stock_ignore <- c("1729","2025","2384","6131","6205","8201","9106") 
 
             m_data <- read.csv(paste(stock.data.path, all.code.List,sep=""), header=TRUE, sep=",")
 #             m_data <- m_data1
@@ -96,6 +95,7 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
                 KK_RAW <- c()
                 
                 for(i in 1:length(name)) {
+                    if(name[i] %in% stock_ignore) next
                     name[i]-> symbol
                     file_name <- m_paste(c(stock.data.path, symbol,".csv"), op="") 	
                     tryit <- try(read.csv(file_name,header=TRUE))
@@ -123,17 +123,18 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
                     }
                 }
 
-                raw.data.List[range] <- m_paste(c(prefix.raw.data.name,selected_period,".csv"),op="")
+                raw.data.List[range] <- m_paste(c(research.path.of.linus, prefix.raw.data.name,selected_period,".csv"),op="")
                 title <- c("STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO","Record_Start")
                 colnames(KK_RAW) <-  title
-                write.zoo(KK_RAW,file=paste(research.path.of.linus, raw.data.List[range],sep=""),sep=",")
+                write.zoo(KK_RAW,file=raw.data.List[range],sep=",")
                 #View(KK_RAW)
             }
         #save raw file list
-        write.csv(raw.data.List,file=paste(research.path.of.linus, raw.data.Listname, sep=""))
+#         raw.data.List.filename <- paste(research.path.of.linus, raw.data.Listname, sep="")
+        write.csv(raw.data.List,file=raw.data.Listname)
     }
-
-    return( raw.data.List )
+    m_env(name="raw.data.Listname", value=raw.data.Listname, mode="w")
+    return( raw.data.Listname )
     
 }
 

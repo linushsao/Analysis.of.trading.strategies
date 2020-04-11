@@ -7,7 +7,7 @@
 #' @examples
 #' median_function(seq(1:10))
 
-data.washing <- function() {
+data.washing <- function(default.stock.selected_Files=NULL) {
 
     #stocks data path
     setwd("/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stocks.preDownload/")
@@ -31,12 +31,16 @@ data.washing <- function() {
     mark.Splite <- m_env(name="mark.Splite",mode="r")
     prefix.washed.list <- m_env(name="prefix.washed.list",mode="r")
     stock.selected.Files_Extension <- m_env(name="stock.selected.Files_Extension",mode="r")
-    raw.data.Listname <- m_env(name="raw.data.Listname",mode="r")
+#     raw.data.Listname <- m_env(name="raw.data.Listname",mode="r")
     #
-    stock.selected_Files <- as.vector(read.csv(paste(research.path.of.linus, raw.data.Listname,sep=""), header=TRUE, sep=",")[,2])
+    if(is.null(default.stock.selected_Files)) {
+        default.stock.selected_Files <- m_env(name="raw.data.Listname",mode="r")
+    }
+    stock.selected_Files <- as.vector(read.csv(default.stock.selected_Files, header=TRUE, sep=",")[,2])
+    
 
     name <- stock.selected_Files
-    filter.list <- merge.data_ByFile(paste(research.path.of.linus, name, sep=""),period=2:3,order=1,header=TRUE)
+    filter.list <- merge.data_ByFile(name, period=2:3, order=1, header=TRUE)
     filter <- t(filter.list[,1])
 
     result.List <- c(rep(NA,50))
@@ -50,7 +54,7 @@ data.washing <- function() {
     for (i in 1:length(name)) {
 
         symbol <- name[i] 
-        data_RAW <- read.csv(paste(research.path.of.linus, symbol,sep=""),header=TRUE)
+        data_RAW <- read.csv(symbol, header=TRUE)
         replace.colum <- 2
         if(dbg(type="if.debug")){
             data_RAW[,replace.colum ] <- gsub(prefix.stock.sxtension,"",data_RAW[,replace.colum ] )
@@ -79,7 +83,7 @@ data.washing <- function() {
         data_RAW <- na.omit(data_RAW)
     }
 
-    file_name <- m_paste(c(prefix.Washed ,i ,"_",symbol) ,op="")
+    file_name <- gsub(prefix.raw.data.name, prefix.Washed, symbol)
 
     names(data_RAW) <- c("INDEX","STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO","Record_Start")
     if(dbg(type="if.debug")){
@@ -96,7 +100,7 @@ data.washing <- function() {
     }
     data_RAW.sort <- m_sort(data_RAW,key="RATE",decreasing=TRUE)[,-c(1)]
     rownames(data_RAW.sort) <- NULL
-    write.csv(data_RAW.sort,file=paste(research.path.of.linus, file_name, sep=""))
+    write.csv(data_RAW.sort, file=file_name)
 
     if(dbg(type="if.debug")){
         msg<- m_paste(c(prefix.Finished ,symbol ," ,index.max ",.max.Data.Num) ,op="")
@@ -104,8 +108,9 @@ data.washing <- function() {
         result.List[.r.list.num] <- msg 
 
         #output filter file
-        file_name <- m_paste(c(prefix.Filter ,i ,name[1]) ,op="")
-        write.csv(filter.list,file=paste(research.path.of.linus, file_name, sep=""))
+#         file_name <- m_paste(c(research.path.of.linus, prefix.Filter, i, name[1]) ,op="")
+        file_name <- gsub(prefix.raw.data.name, prefix.Filter, name[1])
+        write.csv(filter.list,file=file_name)
     }
 
     washed.List[i] <- file_name
@@ -114,10 +119,11 @@ data.washing <- function() {
     ## END_OF LOOP
 
     ifelse(dbg(type="if.debug"),fin.report(result.List ),0)
-
-    file_name <- prefix.Washed.List.name
+    washed.List <- na.omit(washed.List)
+    file_name <- gsub(prefix.Washed, prefix.washed.list, washed.List[1])
     zero <- m_env(name="prefix.Washed.List.name",value=file_name ,mode="w")
-    write.zoo(washed.List,file=paste(research.path.of.linus, file_name, sep=""),sep=",")
+    
+    write.zoo(washed.List, file=file_name, sep=",")
     #fot testing
     file_name <- washed.List[1]
     zero <- m_env(name="backtest.name",value=file_name  ,mode="w")
