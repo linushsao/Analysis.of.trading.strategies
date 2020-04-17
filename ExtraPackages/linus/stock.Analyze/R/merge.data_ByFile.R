@@ -32,16 +32,6 @@ merge.data_ByFile <- function(name,period=NULL,order=NULL,debugger=FALSE,header=
     return(result)
 }
 
-#testing
-#  stock.selected_Files <- c("2019-01-01::2019-04-30_ANALYZE","2019-08-01::2019-12-31_ANALYZE","2019_ANALYZE","2018_ANALYZE","2017_ANALYZE")
-#  stock.selected.Files_Extension <- ".csv"
-
-#讀入所有股票的編號
-#  name <- gsub(" ","",paste(stock.selected_Files,stock.selected.Files_Extension,sep=""))
-#  
-#  dbg(length(KK_RAW[,1]))
-#  KK_RAW <- merge.data_ByFile(name,period=2:3,order=1)
-
 
 
 

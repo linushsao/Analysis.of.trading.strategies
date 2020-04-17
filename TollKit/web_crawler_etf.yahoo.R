@@ -14,52 +14,44 @@ research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 setwd(research.path.of.linus)
 #Basic Configure >>
 #Param Configure <<
-url.head <- "https://query1.finance.yahoo.com/v7/finance/download/"
-url.tail <- "?period1=1199059200&period2=1585267200&interval=1d&events=history"
-crawl.check <- ".crawl.check.csv"
+# url.head <- "https://query1.finance.yahoo.com/v7/finance/download/"
+# url.tail <- "?period1=1199059200&period2=1585267200&interval=1d&events=history"
+# crawl.check <- ".crawl.check.csv"
 extension <- ".TW"
 file.extension <- ".csv"
 crawl.delay.seconds <- c(2:8) #default
 fake.header <- ""
-stock.code.list.path <- "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stock.price/0_Info/all.codes.tw.csv"
-data.dir <- "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stock.price/"
+index.code.list.path <- "/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/all.ETF.csv"
+data.dir <- "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/etf.price/"
 #Param Configure >>
 
 research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 setwd(research.path.of.linus)
 
-ignore.file <- ".ignore.stock.file.csv"
+ignore.file <- ".ignore.etf.file.csv"
 if(! file.exists(ignore.file) ) { 
     processed.list <- c("0")
     write.table(processed.list, ignore.file) 
 }
 
 #read all code of taiwan stocks
-stock.code.list <- read.csv(stock.code.list.path,header=FALSE,sep=",")
-list.code <- as.character(stock.code.list[,1])
+index.code.list <- read.csv(index.code.list.path,header=TRUE, sep=",")
+list.code <- as.character(index.code.list[,3])
 
 for (i in 1:length(list.code))  { 
 
-    check.code <- function(x) {
-            string.l <- nchar(x)
-            if(string.l  <  4) {
-                x <- m_paste(c(rep("0",(4-string.l)),x),op="")
-                }
-            return(x)
-        }
-        
         processed.list <- read.table(ignore.file)
         processed.code <- as.numeric(processed.list)
 #         browser()
-        target.stock <- paste(check.code(list.code[i]),extension,sep="")
-        url <- m_paste(c(url.head ,target.stock ,url.tail),op="")
-        destfile <- paste(target.stock, file.extension,sep="")
+        target.index <- paste(list.code[i], extension,sep="")
+#         url <- m_paste(c(url.head ,target.index ,url.tail),op="")
+        destfile <- paste(target.index, file.extension,sep="")
         distfile.path <- paste(data.dir, destfile, sep="")
         if(i > processed.code ) {
         
                  write.table(as.character(i),ignore.file) 
 
-                        get.data <- getSymbols(target.stock,auto.assign=FALSE)
+                        get.data <- getSymbols(target.index,auto.assign=FALSE)
                             if(inherits(get.data, "try-error")){ 
                                 next 
                                 }else{

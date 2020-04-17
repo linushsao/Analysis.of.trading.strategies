@@ -199,10 +199,13 @@ mission <- get.conf("data.mentainer.mission")
 data.mentainer(action=mission)
     
 
-
-
-
-
-
+# 
+# url <- "https://www.twse.com.tw/zh/page/ETF/list.html"
+# css.code <- "td , th"
+# a <- page2table(page.url=url, css.selector=css.code)
+# a.table <- as.data.frame(a[[2]])
+# a.table[,2] <- as.character(a.table[,2])
+# to.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/'
+# write.csv(a.table,file=paste(to.path, "all.ETF.csv",sep=""))
 
 
