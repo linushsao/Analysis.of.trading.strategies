@@ -8,12 +8,12 @@
 #' median_function(seq(1:10))
 
 
-generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=NULL) {
+generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=NULL, list.path=NULL) {
 
     generate.debug.data <- as.logical(m_env(name="generate.debug.data",mode="r"))
     research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 
-    all.code.List <- m_env(name="all.code.List",mode="r")
+    all.code.List <- list.path
     prefix.stock.extension <- m_env(name="prefix.stock.extension",mode="r")
     prefix.raw.data.name <- m_env(name="prefix.raw.data.name",mode="r")
     stock.selected.Files_Extension <- m_env(name="stock.selected.Files_Extension",mode="r")
@@ -24,7 +24,7 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
     safe_rate <- 0.015 
     raw.data.List <- c()
     stock_ignore <- c("1729","2025","2384","6131","6205","6283","8201","9106") 
-
+    all.colname <- c("STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","RATE.max","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO","Record_Start",'Clspr.ret.Stdev')
     # main function
 
     if (generate.debug.data) {
@@ -54,9 +54,9 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
                     i <- i+1
                     } else {
                     data_1 <- data
-                    return_1 <- na.omit(ROC(data_1$Close))
-                    return <- exp(cumsum(return_1))
-                    mdd = maxDrawDown(cumsum(return_1))
+                    Clspr.ret <- na.omit(ROC(data_1$Close))
+                    return <- exp(cumsum(Clspr.ret))
+                    mdd = maxDrawDown(cumsum(Clspr.ret))
                     l <- length(return)
 
                     temp <- c(symbol,name_c[i],data_1$Close[l],return$Close[l],name_type,name_group,mdd$maxdrawdow,((return$Close[l]-1-safe_rate)/mdd$maxdrawdown),as.character(index(data)[1]))
@@ -67,7 +67,7 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
 
             debug.data.List <- paste(prefix.debug.data.name, name[1], ".csv", sep="")
             KK_RAW <- as.data.frame(KK_RAW)
-            names(KK_RAW) <- c("STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO","Record_Start")
+            names(KK_RAW) <- all.colname
             write.zoo(KK_RAW, file=debug.data.List, sep=",")
             
         #save debug file list
@@ -83,7 +83,7 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
                 
 #             select.tranSet.period <- as.vector(read.csv(raw.data.Listname , header=TRUE, sep=",")[,2])
 
-            m_data <- read.csv(paste(stock.data.path, all.code.List,sep=""), header=TRUE, sep=",")
+            m_data <- read.csv(all.code.List, header=TRUE, sep=",")
 #             m_data <- m_data1
             name <- paste(m_data[,1],prefix.stock.extension, sep = "") 
             name_c <- as.vector(m_data[,2])
@@ -112,19 +112,20 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
                         i <- i+1
                         } else {
                         data_1 <- data[selected_period]
-                        return_1 <- na.omit(ROC(data_1$Close))
-                        return <- exp(cumsum(return_1))
-                        mdd = maxDrawDown(cumsum(return_1))
+                        Clspr.ret <- na.omit(ROC(data_1$Close))
+                        Clspr.ret.sd <- sd(Clspr.ret)
+                        return <- exp(cumsum(Clspr.ret))
+                        mdd = maxDrawDown(cumsum(Clspr.ret))
                         l <- length(return)
 
-                        temp <- c(symbol,name_c[i],data_1$Close[l],return$Close[l],name_type[i],name_group[i],mdd$maxdrawdow,((return$Close[l]-1-safe_rate)/mdd$maxdrawdown),as.vector(data_RAW$Index)[1])
+                        temp <- c(symbol,name_c[i],data_1$Close[l], return$Close[l], max(return$Close), name_type[i],name_group[i], mdd$maxdrawdow, ((return$Close[l]-1-safe_rate)/mdd$maxdrawdown), as.vector(data_RAW$Index)[1], Clspr.ret.sd)
                         KK_RAW <- rbind(KK_RAW,temp)
                         }
                     }
                 }
 
                 raw.data.List[range] <- m_paste(c(research.path.of.linus, prefix.raw.data.name,selected_period,".csv"),op="")
-                title <- c("STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO","Record_Start")
+                title <- all.colname
                 colnames(KK_RAW) <-  title
                 write.zoo(KK_RAW,file=raw.data.List[range],sep=",")
                 #View(KK_RAW)

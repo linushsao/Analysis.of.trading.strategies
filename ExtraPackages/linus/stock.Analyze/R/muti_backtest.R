@@ -8,7 +8,7 @@
 #' median_function(seq(1:10))
 
 
-muti_backtest <- function(default.testSet.period, stock.data.path, default.backtest_num=c(50,5),  default.trading.straregy_type=c(2,80,20,80,20), default.ef_goal_return=0.001) {
+muti_backtest <- function(default.testSet.period, stock.data.path, selected.stockname.list=NULL, default.backtest_num=c(50,5),  default.trading.straregy_type=c(2,80,20,80,20), default.ef_goal_return=0.001) {
 
     #
     prefix.raw.data.name <- m_env(name="prefix.raw.data.name",mode="r")
@@ -16,7 +16,7 @@ muti_backtest <- function(default.testSet.period, stock.data.path, default.backt
     research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 
     #for select stocks
-    selected.stock.name_csv <- m_env(name="backtest.name",mode="r")    #Codelist for chosen stocks
+    selected.stock.name_csv <- ifelse(is.null(selected.stockname.list), m_env(name="backtest.name",mode="r"), selected.stockname.list)     #Codelist for chosen stocks
 #     debug.selected.stock.name_csv <- c("600000.ss.csv","600016.ss.csv","600018.ss.csv","600028.ss.csv","600048.ss.csv")
     #for TestSET
 #     testSet_period <- c(m_env(name="basktest.period",mode="r")) #for TestSET

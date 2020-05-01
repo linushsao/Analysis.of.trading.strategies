@@ -31,7 +31,6 @@ data.washing <- function(default.stock.selected_Files=NULL) {
     mark.Splite <- m_env(name="mark.Splite",mode="r")
     prefix.washed.list <- m_env(name="prefix.washed.list",mode="r")
     stock.selected.Files_Extension <- m_env(name="stock.selected.Files_Extension",mode="r")
-#     raw.data.Listname <- m_env(name="raw.data.Listname",mode="r")
     #
     if(is.null(default.stock.selected_Files)) {
         default.stock.selected_Files <- m_env(name="raw.data.Listname",mode="r")
@@ -84,8 +83,8 @@ data.washing <- function(default.stock.selected_Files=NULL) {
     }
 
     file_name <- gsub(prefix.raw.data.name, prefix.Washed, symbol)
-
-    names(data_RAW) <- c("INDEX","STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO","Record_Start")
+    title <- c("INDEX","STOCK_CODE","STOCK_NAME","LAST_CLOSE","RATE","RATE.max","GROUP","TYPE","MaxDrawDOWN","SHARP_RATIO","Record_Start",'Clspr.ret.Stdev')
+    names(data_RAW) <- title
     if(dbg(type="if.debug")){
         #data_RAW <- na.omit(data_RAW)
         .range <-length(index(data_RAW[,1]))
