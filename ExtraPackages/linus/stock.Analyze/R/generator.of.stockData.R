@@ -94,34 +94,36 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
                 selected_period <- select.tranSet.period[range]
                 KK_RAW <- c()
                 
-                for(i in 1:length(name)) {
-                    if(name[i] %in% stock_ignore) next
+            for(i in 1:length(name)) {
+            
+                if(name[i] %in% stock_ignore) next
+                
                     name[i]-> symbol
                     file_name <- m_paste(c(stock.data.path, symbol,".csv"), op="") 	
-                    tryit <- try(read.csv(file_name,header=TRUE))
-
-                    if(inherits(tryit, "try-error") | (gsub(prefix.stock.extension,"",symbol) %in% stock_ignore) ){
+#                     tryit <- try(read.csv(file_name,header=TRUE))
+#                     if(inherits(tryit, "try-error") | (gsub(prefix.stock.extension,"",symbol) %in% stock_ignore) ){
+                    if(! file.exists(file_name)) {
                         i <- i+1
-                    } else {
+                        } else {
                         data_RAW <- read.csv(file_name,header=TRUE)
                         data <- na.omit(xts(data_RAW[c(2:7)],order.by=as.Date(data_RAW$Index)))
                         names(data) <- c("Open","High","Low","Close","Volume","Adjusted")
-                        
                         l <- length(data[selected_period])
-                        if( l == 0 ){
-                        i <- i+1
-                        } else {
-                        data_1 <- data[selected_period]
-                        Clspr.ret <- na.omit(ROC(data_1$Close))
-                        Clspr.ret.sd <- sd(Clspr.ret)
-                        return <- exp(cumsum(Clspr.ret))
-                        mdd = maxDrawDown(cumsum(Clspr.ret))
-                        l <- length(return)
+                        
+                            if( l == 0 ){
+                            i <- i+1
+                            } else {
+                                data_1 <- data[selected_period]
+                                Clspr.ret <- na.omit(ROC(data_1$Close))
+                                Clspr.ret.sd <- sd(Clspr.ret)
+                                return <- exp(cumsum(Clspr.ret))
+                                mdd = maxDrawDown(cumsum(Clspr.ret))
+                                l <- length(return)
 
-                        temp <- c(symbol,name_c[i],data_1$Close[l], return$Close[l], max(return$Close), name_type[i],name_group[i], mdd$maxdrawdow, ((return$Close[l]-1-safe_rate)/mdd$maxdrawdown), as.vector(data_RAW$Index)[1], Clspr.ret.sd)
-                        KK_RAW <- rbind(KK_RAW,temp)
+                                temp <- c(symbol,name_c[i],data_1$Close[l], return$Close[l], max(return$Close), name_type[i],name_group[i], mdd$maxdrawdow, ((return$Close[l]-1-safe_rate)/mdd$maxdrawdown), as.vector(data_RAW$Index)[1], Clspr.ret.sd)
+                                KK_RAW <- rbind(KK_RAW,temp)
+                            }
                         }
-                    }
                 }
 
                 raw.data.List[range] <- m_paste(c(research.path.of.linus, prefix.raw.data.name,selected_period,".csv"),op="")
@@ -135,7 +137,7 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
         write.csv(raw.data.List,file=raw.data.Listname)
     }
     m_env(name="raw.data.Listname", value=raw.data.Listname, mode="w")
-    return( raw.data.Listname )
+    return( raw.data.List )
     
 }
 

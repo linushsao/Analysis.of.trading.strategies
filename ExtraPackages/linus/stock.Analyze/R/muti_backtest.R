@@ -35,13 +35,10 @@ muti_backtest <- function(default.testSet.period, stock.data.path, selected.stoc
     #3.kd type
     enable_debug_mode <- c(FALSE,1,3)   
     #
-    enable_latestPrice<- TRUE          #是否(TRUE/FALSE)從網路下載股票資料
+    enable_latestPrice<- FALSE          #是否(TRUE/FALSE)從網路下載股票資料
 
     enable_reandom_stocks <- get.conf(name="enable_reandom_stocks" ,default.conf=FALSE) #是否(TRUE/FALSE)使用亂數選擇一定支數股票為實驗組TESTING GROUP
     backtest_num <- get.conf(name="backtest_num" ,default.conf=default.backtest_num) #c(n,m),於報酬率前n名中取m名股票編號
-#     enable_control_group <- get.conf(name="enable_control_group" ,default.conf=TRUE)        #是否(TRUE/FALSE)使用亂數對照組
-#     enable_singal_chart <- get.conf(name="enable_singal_chart" ,default.conf=TRUE)        #是否(TRUE/FALSE)顯示個別股票分析圖表
-#     enable_simple_chart <- get.conf(name="enable_simple_chart" ,default.conf=TRUE)        #只顯示走勢圖，無回測圖及資料表格
 
     trading.straregy_type <- get.conf(name="trading.straregy_type" ,default.conf=default.trading.straregy_type)  #(交易策略1=KD based R,2=KD based KDvalue,3=KD based KDJvalue,其他交易策略參數)
 
@@ -241,7 +238,7 @@ muti_backtest <- function(default.testSet.period, stock.data.path, selected.stoc
                 }
             }
 
-            
+            ###
             #file_name <-  gsub(" ","",paste(stock_name,sub_name))
             data_RAW <- read.csv(file_name_csv,header=TRUE) #read selected stocks data
 
@@ -317,37 +314,11 @@ muti_backtest <- function(default.testSet.period, stock.data.path, selected.stoc
     all_return <- na.omit(merge(BuyHold$AVERAGE,Trading.straregy_method$AVERAGE,fund.Allocation_method$AVERAGE)[testSet_period])
     names(all_return) <- c("BuyHold","Trading.straregy_method","fund.Allocation_method")
 
-#     title <- m_paste(c(ifelse(enable_fund_allocation,"(F.A.)",""),"BACKTEST of Stock:",as.character(m_paste(get.stock_chinesename[backtestSet_period]))),op="")
-                                
-#     if (enable_simple_chart){
-#         windows()
-#         backtest(all_return$BuyHold,all_return$Trading.straregy_method,title)
-#         windows()
-#         backtest(all_return$BuyHold,all_return$fund.Allocation_method,title)
-#     }
-
     asset_1 <- cumprod(1+all_return$BuyHold)
     asset_2 <- cumprod(1+all_return$Trading.straregy_method)
     asset_3 <- cumprod(1+all_return$fund.Allocation_method)
 
     all_assets <- merge(asset_1,asset_2,asset_3)
-
-#     windows()
-#     par(mfrow=c(2,1))
-#     plot(all_return,col=c("black","blue","green"),main=title_1,sep="")
-#     #legend("topright",legend=c("BuyHold","Trading.straregy_method","fund.Allocation_method"),col=c("black","red","green"),lty=c(1,1,1))
-#     plot(all_assets,col=c("black","blue","green"),main=title_2,title,sep="")
-#     #legend("topright",legend=c("BuyHold","Trading.straregy_method","fund.Allocation_method"),col=c("black","red","green"),lty=c(1,1,1))
-
-#     if (enable_simple_chart){
-#         View(tail(all_return,20))
-#         View(tail(cumsum(all_return),20))
-#         View(tail(all_assets,20))
-#     }
-# 
-#     summary(all_return)
-#     summary(all_assets)
-
 
     #simulation for rate of others random portfolio
     if (enable_ef_simulation) {
@@ -367,19 +338,8 @@ muti_backtest <- function(default.testSet.period, stock.data.path, selected.stoc
         sim_return <- (xts(sim_return,order.by=index(na.omit(all_RET))))
         sim_cum_return <- cumprod( 1+sim_return )
 
-#         windows()
-#         t1 <- ifelse(enable_fund_allocation,"FA.enable /","")
-#         t2 <- m_paste(trading.straregy_type,":")
-#         tm <- m_paste(c("Strategy.profit_RATE v.s. Random.profit_RATE (",t1,t2,")"))
-#         main.set <- merge(asset_1 ,merge(asset_2,asset_3))
-#         plot.xts(merge(main.set,sim_cum_return),col=c("black","blue","green",rep("lightgray",100)),screens=1,main=tm)
-
     }
 
-#     # if (enable_simple_chart){
-#     windows()
-#     pairs(as.data.frame(coredata(all_RET)))
-#     # }
     z.cor <- cor(na.omit(all_RET))
 
     if( enable_ef_simulation.record ) {
