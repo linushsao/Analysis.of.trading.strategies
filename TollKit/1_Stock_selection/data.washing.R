@@ -1,1 +1,0 @@
-/home/linus/Project/1_R/Analysis.of.trading.strategies/ExtraPackages/linus/stock.Analyze/R/data.washing.R
