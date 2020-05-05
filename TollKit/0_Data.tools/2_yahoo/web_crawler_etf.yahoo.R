@@ -21,7 +21,7 @@ extension <- ".TW"
 file.extension <- ".csv"
 crawl.delay.seconds <- c(2:8) #default
 fake.header <- ""
-index.code.list.path <- "/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/all.ETF.csv"
+index.code.list.path <- "/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/all.ETF.code.csv"
 data.dir <- "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/etf.price/"
 #Param Configure >>
 
@@ -36,7 +36,7 @@ if(! file.exists(ignore.file) ) {
 
 #read all code of taiwan stocks
 index.code.list <- read.csv(index.code.list.path,header=TRUE, sep=",")
-list.code <- as.character(index.code.list[,3])
+list.code <- sapply(as.character(index.code.list[,1]), function(x) m_check.code(x))
 
 for (i in 1:length(list.code))  { 
 

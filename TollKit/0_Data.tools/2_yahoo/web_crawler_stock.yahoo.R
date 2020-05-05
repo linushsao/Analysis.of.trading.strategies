@@ -21,7 +21,7 @@ extension <- ".TW"
 file.extension <- ".csv"
 crawl.delay.seconds <- c(2:8) #default
 fake.header <- ""
-stock.code.list.path <- "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stock.price/0_Info/all.codes.tw.csv"
+stock.code.list.path <- "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/all_codes.csv"
 data.dir <- "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stock.price/"
 #Param Configure >>
 
@@ -35,7 +35,7 @@ if(! file.exists(ignore.file) ) {
 }
 
 #read all code of taiwan stocks
-stock.code.list <- read.csv(stock.code.list.path,header=FALSE,sep=",")
+stock.code.list <- read.csv(stock.code.list.path,header=TRUE,sep=",")
 list.code <- as.character(stock.code.list[,1])
 
 for (i in 1:length(list.code))  { 
@@ -65,10 +65,10 @@ for (i in 1:length(list.code))  {
                                 }else{
 #                                     write.csv(get.data, distfile.path)
                                     write.zoo(get.data, file = distfile.path, sep = ",")
+                                    print(paste("_File download completely ",destfile,sep=":"))
                                     sle.num  <- sample(crawl.delay.seconds,size=1,replace=TRUE)
                                     print(paste("_Sleep.Second ",sle.num,sep=":"))
                                     Sys.sleep(sle.num)
-                                    print(paste("_File download completely ",destfile,sep=":"))
                                 }
                 }else{
                 print(m_paste(c("_Checked File ",as.character(i),"and Jump to Next File, Ignore Procssed File: ",destfile),op=""))

@@ -9,7 +9,9 @@
 
         oscillation.indicator <- function(Clprs=Clprs, 
                                     trigger.action=c('brown', 'orange') , 
-                                    trigger.mat=c(-0.005, 0.005, -0.01, 0.01, -0.015, 0.015, -0.025, 0.025, -0.04, 0.04)) 
+                                    trigger.mat=c(-0.005, 0.005, -0.01, 0.01, -0.015, 0.015, -0.025, 0.025, -0.04, 0.04),
+                                    record.path=NULL
+                                    ) 
         {
         
             stock.ma <- m_time.invested( data= (Clprs) ) 
@@ -56,7 +58,12 @@
 
                         }
                 }
-                
+               
+            if(! is.null(record.path) ) 
+            {
+                write.zoo(stock.ma, file=record.path, sep = ",")
+            }
+            
             return( list(trade.signal=trade.signal , stock.ma=stock.ma, trigger.action=trigger.action, indicator.color=indicator.color, trigger.line=trigger.line, trigger.mat=trigger.mat) )
         }
 

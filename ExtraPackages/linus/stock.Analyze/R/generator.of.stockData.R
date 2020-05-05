@@ -8,7 +8,7 @@
 #' median_function(seq(1:10))
 
 
-generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=NULL, list.path=NULL) {
+generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=NULL, list.path=NULL, group=NULL) {
 
     generate.debug.data <- as.logical(m_env(name="generate.debug.data",mode="r"))
     research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
@@ -33,9 +33,9 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
 #             KK_RAW <- c()
 #             
 #             name <- debug.selected.stock.name
-#             name_c <- debug.selected.stock.name
-#             name_group <- "for.Debug"
-#             name_type <- "for.Debug"
+#             stock.cname <- debug.selected.stock.name
+#             stock.group <- "for.Debug"
+#             stock.type <- "for.Debug"
 #             
 #             for(i in 1:length(name)) {
 #                 name[i]-> symbol
@@ -60,7 +60,7 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
 #                     mdd = maxDrawDown(cumsum(Clspr.ret))
 #                     l <- length(return)
 # 
-#                     temp <- c(symbol,name_c[i],data_1$Close[l],return$Close[l],name_type,name_group,mdd$maxdrawdow,((return$Close[l]-1-safe_rate)/mdd$maxdrawdown),as.character(index(data)[1]))
+#                     temp <- c(symbol,stock.cname[i],data_1$Close[l],return$Close[l],stock.type,stock.group,mdd$maxdrawdow,((return$Close[l]-1-safe_rate)/mdd$maxdrawdown),as.character(index(data)[1]))
 #                     KK_RAW <- rbind(KK_RAW,temp)
 #                     }
 #                 }
@@ -84,12 +84,14 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
                 
 #             select.tranSet.period <- as.vector(read.csv(raw.data.Listname , header=TRUE, sep=",")[,2])
 
-            m_data <- read.csv(all.code.List, header=TRUE, sep=",")
-#             m_data <- m_data1
-            name <- paste(m_data[,1],prefix.stock.extension, sep = "") 
-            name_c <- as.vector(m_data[,2])
-            name_group <- as.vector(m_data[,5])
-            name_type <- as.vector(m_data[,6])
+            code.list <- read.csv(all.code.List, header=TRUE, sep=",")
+#             code.list <- code.list1
+            code.list[,1] <- sapply(as.character(code.list[,1]), m_check.code)
+            name <- paste(code.list[,1],prefix.stock.extension, sep = "") 
+            
+            stock.cname <- as.vector(code.list[,2])
+            stock.group <- as.vector(code.list[,5])
+            stock.type <- as.vector(code.list[,6])
 
             for( range in 1:length(select.tranSet.period) )  {
                 selected_period <- select.tranSet.period[range]
@@ -121,14 +123,14 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
                                 mdd = maxDrawDown(cumsum(Clspr.ret))
                                 l <- length(return)
 
-                                temp <- c(symbol,name_c[i],data_1$Close[l], return$Close[l], max(return$Close), name_type[i],name_group[i], mdd$maxdrawdow, ((return$Close[l]-1-safe_rate)/mdd$maxdrawdown), as.vector(data_RAW$Index)[1], Clspr.ret.sd)
+                                temp <- c(symbol,stock.cname[i],data_1$Close[l], return$Close[l], max(return$Close), stock.type[i],stock.group[i], mdd$maxdrawdow, ((return$Close[l]-1-safe_rate)/mdd$maxdrawdown), as.vector(data_RAW$Index)[1], Clspr.ret.sd)
                                 KK_RAW <- rbind(KK_RAW,temp)
 #                                 m_msg(info=paste(selected_period, name[i], l))
                             }
                         }
                 }
 
-                raw.data.List[range] <- m_paste(c(research.path.of.linus, prefix.raw.data.name,selected_period,".csv"),op="")
+                raw.data.List[range] <- m_paste(c(research.path.of.linus, group, '.', prefix.raw.data.name,selected_period,".csv"),op="")
                 title <- all.colname
                 colnames(KK_RAW) <-  title
                 write.zoo(KK_RAW,file=raw.data.List[range],sep=",")

@@ -21,6 +21,7 @@ m_performance.test <- function(selected.stock=NULL, stock.data.path=NULL, testSe
     #ef_goal_return 效率前緣做資產配置之**每日**預期報酬率
     #ef_simulation_num 快速模擬n種配置之次數
     #enable_ef_simulation.record 儲存亂數配置結果
+    research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
     simulation.record.filename <- m_env(name="simulation.record.filename",mode="r")  #模擬配置儲存檔名
     #
     #Data prepare

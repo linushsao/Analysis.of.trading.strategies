@@ -1,6 +1,7 @@
 
 rm(list=ls())
 
+# loading library
 # LIBRS <- c('quantmod','stringr','fTrading','xts','TTR')
 # sapply(LIBRS,library,character.only=TRUE)
 library(mondate)
@@ -8,7 +9,7 @@ library(mondate)
 source('/home/linus/Project/1_R/Analysis.of.trading.strategies/TollKit/custom.pkg.R')
 source(m_env(name="custom.pkg.path", mode="r"))
 
-#
+# basic configure
 research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 setwd(research.path.of.linus)
 
@@ -26,12 +27,15 @@ crawl.delay.seconds <- m_env(name="crawl.delay.seconds",mode="r")
 if( is.null(crawl.delay.seconds) || (crawl.delay.seconds  == "")) { 
     crawl.delay.seconds <- c(10:30) #default
     }
+    
+    
 # Main Program <<
 
 repeat {
 #         browser()
-        (start.date <- as.Date(format((as.mondate(start.date.raw) - 1), "%Y-%m-%d")))
-        (datestr <- paste(format(start.date, "%Y%m"), '01', sep=''))
+        start.date.raw <- format((as.mondate(start.date.raw) - 1), "%Y-%m-%d")
+        start.date <- as.Date(format((as.mondate(start.date.raw) - 1), "%Y-%m-%d"))
+        datestr <- paste(format(start.date, "%Y%m"), '01', sep='')
         url <- m_paste(c(data.url.head ,datestr ,data.url.tail), op="")
         destfile <- m_paste(c(data.dir, as.character(start.date), ".csv"),op="")
 
@@ -53,25 +57,6 @@ repeat {
             
             m_msg(info=paste("_Ignore processed file :", destfile, sep=""))
             }
-                
 }
     
-
-    
-    
-
-
-
-
-#format(Sys.time(), "%Y-%m-%d")  /   format(Sys.time(), "%Y-%m-%d")
-# r = requests.post('https://www.twse.com.tw/exchangeReport/MI_INDEX?response=csv&date=' + datestr + '&type=ALL')
-# data.url.head <- "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=csv&date="
-# data.url.tail <- "&type=ALL"
-# url <- m_paste(c(data.url.head,datestr,data.url.tail),op="")
-# destfile <- "test.csv"
-# 
-# download.file(url, destfile, mode="wb")
-# 
-# new <- as.Date("2020-03-23")
-# new -1
-
+# Main Program >>

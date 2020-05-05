@@ -7,7 +7,8 @@
 generator.of.stockData(
   select.tranSet.period = NULL,
   stock.data.path = NULL,
-  list.path = NULL
+  list.path = NULL,
+  group = NULL
 )
 }
 \arguments{
