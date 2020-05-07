@@ -7,14 +7,14 @@
 #' @examples
 #' median_function(seq(1:10))
 
-m_gsub <- function(be_replace, patten, v){
+m_gsub <- function(be_replace, patten, v, fixed=FALSE){
 
     be.num <- length(be_replace)
     pa.num <- length(patten)
     if( be.num == pa.num ) {
     
         for(i in 1:be.num){
-            v <- gsub(be_replace[i] ,patten[i] ,v)
+            v <- gsub(be_replace[i] ,patten[i] ,v, , fixed=fixed)
             }
         }else{
         

@@ -13,7 +13,8 @@
                                     record.path=NULL
                                     ) 
         {
-        
+            # indicator brown down through orange line, used for black swan ex. COVID VIRUS
+            # indicator blue down through purple line, used for normal time
             stock.ma <- m_time.invested( data= (Clprs) ) 
             stock.ma <- stock.ma[complete.cases(stock.ma)]
             color.name <- c('Close','gray','gray.1','brown','blue','red')
@@ -58,14 +59,27 @@
 
                         }
                 }
-               
+             
+            result <- list(trade.signal=trade.signal , stock.ma=stock.ma, trigger.action=trigger.action, indicator.color=indicator.color, trigger.line=trigger.line, trigger.mat=trigger.mat)
+            
             if(! is.null(record.path) ) 
             {
-                write.zoo(stock.ma, file=record.path, sep = ",")
+                list.save(result, file=record.path)
             }
             
-            return( list(trade.signal=trade.signal , stock.ma=stock.ma, trigger.action=trigger.action, indicator.color=indicator.color, trigger.line=trigger.line, trigger.mat=trigger.mat) )
+            return(result)
         }
+
+# a <- read.csv(file='/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stock.price/3050.TW.csv', header=TRUE,sep=',')
+# a.xts <- xts(a[,-1], order.by=as.Date(a[,1]))
+# 
+# Clprs <- a.xts$X3050.TW.Close
+# Clprs <- Clprs[complete.cases(Clprs), ]
+# 
+# 
+# 
+# b <- oscillation.indicator(Clprs=Clprs)
+# 
 
 
 

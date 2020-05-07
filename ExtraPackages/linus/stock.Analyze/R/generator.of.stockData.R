@@ -8,7 +8,7 @@
 #' median_function(seq(1:10))
 
 
-generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=NULL, list.path=NULL, group=NULL) {
+generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=NULL, list.path=NULL, group=NULL, force.update=FALSE) {
 
     generate.debug.data <- as.logical(m_env(name="generate.debug.data",mode="r"))
     research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
@@ -76,27 +76,29 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
 
         }else{
 
-            KK_RAW <- c()
-            if( is.null(select.tranSet.period) ) { #custom raw.data.Listname
-                select.tranSet.period <- read.csv(raw.data.Listname, header=TRUE,sep=",")[,2]
-                select.tranSet.period <- m_gsub(c(prefix.raw.data.name, stock.selected.Files_Extension),c(""),select.tranSet.period)
-                }
-                
+        KK_RAW <- c()
+        if( is.null(select.tranSet.period) ) { #custom raw.data.Listname
+            select.tranSet.period <- read.csv(raw.data.Listname, header=TRUE,sep=",")[,2]
+            select.tranSet.period <- m_gsub(c(prefix.raw.data.name, stock.selected.Files_Extension),c(""),select.tranSet.period)
+            }
+            
 #             select.tranSet.period <- as.vector(read.csv(raw.data.Listname , header=TRUE, sep=",")[,2])
 
-            code.list <- read.csv(all.code.List, header=TRUE, sep=",")
+        code.list <- read.csv(all.code.List, header=TRUE, sep=",")
 #             code.list <- code.list1
-            code.list[,1] <- sapply(as.character(code.list[,1]), m_check.code)
-            name <- paste(code.list[,1],prefix.stock.extension, sep = "") 
-            
-            stock.cname <- as.vector(code.list[,2])
-            stock.group <- as.vector(code.list[,5])
-            stock.type <- as.vector(code.list[,6])
+        code.list[,1] <- sapply(as.character(code.list[,1]), m_check.code)
+        name <- paste(code.list[,1],prefix.stock.extension, sep = "") 
+        
+        stock.cname <- as.vector(code.list[,2])
+        stock.group <- as.vector(code.list[,5])
+        stock.type <- as.vector(code.list[,6])
 
-            for( range in 1:length(select.tranSet.period) )  {
-                selected_period <- select.tranSet.period[range]
-                KK_RAW <- c()
-                
+        for( range in 1:length(select.tranSet.period) )  {
+            selected_period <- select.tranSet.period[range]
+            raw.data.List[range] <- m_paste(c(research.path.of.linus, group, '.', prefix.raw.data.name,selected_period,".csv"),op="")
+            if(file.exists(raw.data.List[range]) && !force.update) next
+
+            KK_RAW <- c()
             for(i in 1:length(name)) {
             
                 if(name[i] %in% stock_ignore) next
@@ -130,7 +132,7 @@ generator.of.stockData <- function( select.tranSet.period=NULL, stock.data.path=
                         }
                 }
 
-                raw.data.List[range] <- m_paste(c(research.path.of.linus, group, '.', prefix.raw.data.name,selected_period,".csv"),op="")
+#                 raw.data.List[range] <- m_paste(c(research.path.of.linus, group, '.', prefix.raw.data.name,selected_period,".csv"),op="")
                 title <- all.colname
                 colnames(KK_RAW) <-  title
                 write.zoo(KK_RAW,file=raw.data.List[range],sep=",")
