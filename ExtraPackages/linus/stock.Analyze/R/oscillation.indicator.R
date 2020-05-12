@@ -37,11 +37,11 @@
         
             trigger.mat <- matrix(trigger.mat, byrow=TRUE, nrow=5, ncol=2)
             colnames(trigger.mat) <- c('min', 'max')
-            rownames(trigger.mat) <- c('green', 'purple', 'orange', 'deep pink', 'chocolate')
+            rownames(trigger.mat) <- c('green', 'purple', 'orange', 'deep pink', 'black')
             
             trigger.action <- matrix(trigger.action, ncol=2) #indicator brown through level orange
             colnames(trigger.action) <- c('indicator','trigger')
-            indicator.color <- c('darkgray','darkgray','brown','blue','red')
+            indicator.color <- c('gray80','gray60','brown','blue','red')
 
             for(trigger.id in 1:nrow(trigger.action)) {
             trade.signal <-  c(rep(0, nrow(stock.ma)))

@@ -9,7 +9,8 @@ oscillation.indicator(
   trigger.action = c("brown", "orange"),
   trigger.mat = c(-0.005, 0.005, -0.01, 0.01, -0.015, 0.015, -0.025, 0.025, -0.04,
     0.04),
-  record.path = NULL
+  record.path = NULL,
+  auto.detect = FALSE
 )
 }
 \arguments{

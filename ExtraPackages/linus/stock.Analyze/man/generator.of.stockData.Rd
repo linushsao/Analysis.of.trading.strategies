@@ -5,11 +5,11 @@
 \title{A generator.of.stockDat Function}
 \usage{
 generator.of.stockData(
-  select.tranSet.period = NULL,
-  stock.data.path = NULL,
+  tranSet.period = NULL,
+  data.path = NULL,
   list.path = NULL,
   group = NULL,
-  force.update = FALSE
+  auto.detect = TRUE
 )
 }
 \arguments{

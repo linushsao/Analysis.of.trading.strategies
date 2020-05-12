@@ -21,7 +21,7 @@ setwd(research.path.of.linus)
 file.extension <- ".csv"
 crawl.delay.seconds <- c(2:8) #default
 fake.header <- ""
-index.code.list.path <- "/home/linus/Project/9.Shared.Data/0_Global/world.wide.broad.index.csv"
+index.code.list.path <- "/home/linus/Project/1_R/Analysis.of.trading.strategies/world.wide.broad.index.csv"
 data.dir <- "/home/linus/Project/9.Shared.Data/0_Global/Index/"
 #Param Configure >>
 
@@ -63,7 +63,7 @@ for (i in 1:length(list.code))  {
                                     print(paste("_File download completely ",destfile,sep=":"))
                                 }
                 }else{
-                print(m_paste(c("_Checked File ",as.character(i),"and Jump to Next File, Ignore Procssed File: ",destfile),op=""))
+                print(m_paste(c("_Checked File ",as.character(i)," and Jump to Next File, Ignore Procssed File: ",destfile),op=""))
                 }
                     
 }

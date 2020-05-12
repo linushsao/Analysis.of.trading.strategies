@@ -26,13 +26,7 @@ dataset.MGR <- function(dataset.name=FALSE, col.name=NULL, group="stock.yahoo", 
     header.format <- c("Index","Open","High","Low","Close","Volume","Adjusted") 
     names(header.format) <- tolower(header.format)
     env.name <- "dataset.MGR"
-#     data.dir <- list(
-#             stock.yahoo = c("/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stocks.preDownload/Stock/") ,
-#             index.yahoo = c("/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stocks.preDownload/Index/") ,
-#             stock.twse  = c("/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/stock.price/1_raw.data/4_SpliteIntoSingleSTOCK/")
-#             )
-    #configure >>>
-    
+
     # main function
     main <- function() {
 #         browser()
