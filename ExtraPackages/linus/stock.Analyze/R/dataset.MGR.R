@@ -18,38 +18,54 @@
 # 
 # setwd("/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stocks.preDownload/")
 
-dataset.MGR <- function(dataset.name=FALSE, col.name=NULL, group="stock.yahoo", mode="data", file.extension=".csv", header=TRUE, to.exts=FALSE, online=FALSE, verbose=FALSE){
- 
+dataset.MGR <- function(
+                dataset.name=NULL, group=c("stock",'data'), request='path', 
+                file.extension=".csv", header=TRUE, to.exts=FALSE, online=FALSE, verbose=FALSE)
+{
+
     #configure <<<
-    if(! is.null(col.name) ) col.name <- tolower(col.name)
+    if(length(group)==1) group <- c(group, 'data')
+#     if(! is.null(col.name) ) col.name <- tolower(col.name)
     file.extension <- ".csv"
-    header.format <- c("Index","Open","High","Low","Close","Volume","Adjusted") 
-    names(header.format) <- tolower(header.format)
+#     header.format <- c("Index","Open","High","Low","Close","Volume","Adjusted") 
+#     names(header.format) <- tolower(header.format)
     env.name <- "dataset.MGR"
+    
+    env.config <- data.frame(
+        data=c( "/home/linus/Project/9.Shared.Data/0_Global/Index/",
+                "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stock.price/",
+                "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/etf.price/"),
+        list=c( "/home/linus/Project/1_R/Analysis.of.trading.strategies/world.wide.broad.index.csv",
+                "/home/linus/Project/1_R/Analysis.of.trading.strategies/all_codes.csv",
+                "/home/linus/Project/1_R/Analysis.of.trading.strategies/all.ETF.code.csv"),
+        remix=c(    "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/03_index/",
+                    "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/",
+                    "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/02_etf/"),
+        ma=c(    "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/02_Index/",
+                "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/01_stock/",
+                "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/03_etf/"),
+        extension=c("",".TW",".TW"),
+        row.names=c('index', 'stock', 'etf')
+    )
+
 
     # main function
-    main <- function() {
+    main <- function() 
+    {
 #         browser()
-        switch(mode,
-            data = {    z.file <- get.Inquire.data()
-                        names(z.file) <- header.format
+        switch(request,
+            info = {   z.file <- get.Inquire.data()
+#                         names(z.file) <- header.format
                         z.index <- z.file[,c(1)] 
-                        if( !is.null(col.name) ) {
-
-                            z.file <- z.file[ header.format[col.name] ]
-                            }else{
-                            
-                            z.file <- z.file[,-c(1)]
-                            }
-            #             browser()                  
-                        if( to.exts ) z.file <- xts(z.file, order.by=as.Date(z.index))
+#                         if( !is.null(col.name) ) z.file <- z.file[ header.format[col.name] ]
+                        if( to.exts ) z.file <- xts(z.file[,-c(1)], order.by=as.Date(z.index))
                     
                         result <- z.file
                         return(result)
                         },
-            path =  { return(data.path(group)) }
+            path =  { return(as.character(data.path(group))) }
         )
-    }
+    }        
                 
             # sub function <<<
             msg<- function(v){
@@ -59,25 +75,25 @@ dataset.MGR <- function(dataset.name=FALSE, col.name=NULL, group="stock.yahoo", 
                 }
                 
             data.path <- function(group){
-#                             browser()
-#                             result <- data.dir[[group]]
-                            result <- get.conf(name=group,env.name=env.name)
-#                             path <- switch(group,
-#                                 stock.yahoo = data.dir[["stock.yahoo"]] ,
-#                                 stock.twse = data.dir[["stock.twse"]] 
-#                                 )
-                            return(result)
+                result <- env.config[group[1], group[2]]
+                return(result)
                     }
             
             get.Inquire.data <- function(){
-                    file_name_csv <-  m_paste(c(data.path(group), dataset.name, file.extension), op="")
+                    if(! is.null(dataset.name) )
+                    {
+                    file_name_csv <-  as.character(paste0(data.path(group), dataset.name, file.extension))
+                    }else{
+                    file_name_csv <-  as.character(data.path(group))
+                    }
+                    
                     z.file <- read.csv(file_name_csv, header=header, sep=",")
                     #z.file <- xts(z.file[,-c(1)],order.by=as.Date(z.file$Index))
 
                     return(z.file)
                 }
             # sub function >>>
-            
+    
     ## execute main functrion
     main()
 
@@ -93,7 +109,7 @@ dataset.MGR <- function(dataset.name=FALSE, col.name=NULL, group="stock.yahoo", 
 # head(a)
 # a <- (dataset.MGR("^GSPC",col.name="close",group="index.yahoo"))
 # head(a)
-# a <- (dataset.MGR(group="index.yahoo", mode="path"))
+# a <- (dataset.MGR(group="index.yahoo", request="path"))
 # a
 
 # stocks.name <- c("600000","600016","600018","600028","600048")

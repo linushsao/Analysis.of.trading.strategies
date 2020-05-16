@@ -5,10 +5,9 @@
 \title{A dataset.MGR Function}
 \usage{
 dataset.MGR(
-  dataset.name = FALSE,
-  col.name = NULL,
-  group = "stock.yahoo",
-  mode = "data",
+  dataset.name = NULL,
+  group = c("stock", "data"),
+  request = "path",
   file.extension = ".csv",
   header = TRUE,
   to.exts = FALSE,
