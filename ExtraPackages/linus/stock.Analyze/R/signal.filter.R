@@ -7,26 +7,55 @@
 #' @examples
 #' median_function(seq(1:10))
 
-signal.filter <- function(signal, max=0)
+signal.filter <- function(signal, max=0, co.indicator=NULL)
 {
     row.num <- nrow(signal)
     tmp.data <- c(rep(0, row.num))
     signal[is.na(signal)] <- 0
     
-    for(rowid in 2:row.num) tmp.data[rowid] <- signal[rowid] * (signal[rowid] + tmp.data[rowid-1])
-    
-    while(TRUE)
+    if(max < 0) 
     {
-        if(row.num < 2 || max==0) break
-        if( tmp.data[row.num] == 0 || is.na(tmp.data[row.num]) ) { row.num <- row.num -1 ; next }
-
-        t.range <- c((row.num - tmp.data[row.num] + 1) : row.num )
-        t.fill <- ifelse(tmp.data[row.num] > max, 1, 0)
-        t.step <- tmp.data[row.num]
-        for( v.id in 1:length(t.range)) tmp.data[t.range[v.id]] <- t.fill
+        signal[signal == 0] <- -1
+        #work only for value <0
+        for(rowid in 2:row.num) tmp.data[rowid] <- ifelse(  signal[rowid]<0, 
+                                                            signal[rowid] + ifelse(tmp.data[rowid-1]>0, 0, tmp.data[rowid-1]),
+                                                            signal[rowid]) 
+        #check if continue 3days <0 or using co.indicator                                                          
+        for(rowid in 2:row.num) tmp.data[rowid] <- ifelse(  tmp.data[rowid]<0, 
+                                                            tmp.data[rowid] - (max-1),
+                                                            tmp.data[rowid])
+        for(rowid in 2:row.num) tmp.data[rowid] <- ifelse(  tmp.data[rowid]>0, 
+                                                            1, 0);tmp1.data <- tmp.data   
+        if(! is.null(co.indicator)) {
+            for(rowid in 3:(row.num-3)) 
+            {
+                if(sum(tmp.data[(rowid-1):(rowid+1)])!=0 && !is.na(co.indicator[rowid-1]))
+                {
+                    if(mean(co.indicator[(rowid-1):(rowid+1)])>0){
+                        tmp.data[rowid] <- 1
+                        }else{
+                        tmp.data[rowid] <- 0}
+                }
+            }
+        }
         
-        row.num <- row.num - t.step 
-    }
+    }else{
+        for(rowid in 2:row.num) tmp.data[rowid] <- signal[rowid] * (signal[rowid] + tmp.data[rowid-1])
+
+            while(TRUE)
+            {
+                if(row.num < 2 || max==0) break
+                if( tmp.data[row.num] == 0 || is.na(tmp.data[row.num]) ) { row.num <- row.num -1 ; next }
+        
+                t.range <- c((row.num - tmp.data[row.num] + 1) : row.num )
+                t.fill <- ifelse(tmp.data[row.num] > max, 1, 0)
+                t.step <- tmp.data[row.num]
+                for( v.id in 1:length(t.range)) tmp.data[t.range[v.id]] <- t.fill
+                
+                row.num <- row.num - t.step 
+            }
+        }
+#     return(data.frame(a=tmp.data, b=tmp1.data, c=co.indicator))
     return(tmp.data)
 }
 

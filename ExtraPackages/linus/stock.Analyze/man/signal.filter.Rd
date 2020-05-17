@@ -4,7 +4,7 @@
 \alias{signal.filter}
 \title{A m_std.data Function}
 \usage{
-signal.filter(signal, max = 0)
+signal.filter(signal, max = 0, co.indicator = NULL)
 }
 \arguments{
 \item{x}{A numeric vector.}
