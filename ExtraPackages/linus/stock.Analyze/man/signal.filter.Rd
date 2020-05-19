@@ -4,7 +4,12 @@
 \alias{signal.filter}
 \title{A m_std.data Function}
 \usage{
-signal.filter(signal, max = 0, co.indicator = NULL)
+signal.filter(
+  signal,
+  max.days = 0,
+  value.filted = NULL,
+  fixed.indicator = NULL
+)
 }
 \arguments{
 \item{x}{A numeric vector.}

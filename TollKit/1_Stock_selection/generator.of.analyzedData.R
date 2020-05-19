@@ -14,7 +14,7 @@ research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 setwd(research.path.of.linus)
 
 #generate analyze data
-analyze.group.id <- 2
+analyze.group.id <- 0
 if(analyze.group.id==0)
 {
     analyze.group.conf <- c('index', 'stock', 'etf')
@@ -61,7 +61,7 @@ for( group.id in 1:length(analyze.group.conf))
 
     #select data for analyze
     # select.col <- c(2,3,7,5,6,9,10,12)
-    select.col.maininfo <- c( 'STOCK_NAME', 'GROUP')
+    select.col.maininfo <- c( 'STOCK_NAME', 'GROUP' )
     select.col <- c('STOCK_CODE', select.col.maininfo, 'LAST_CLOSE', 'Clspr.ret.Stdev', 'RATE', 'RATE.max', 'MaxDrawDOWN', 'SHARP_RATIO')
     select.col.addYear <- c(4:9)
     remix.data <- data.frame()
@@ -90,21 +90,19 @@ for( group.id in 1:length(analyze.group.conf))
             {
                 name.x <- paste0(name.id,'.x')
                 name.y <- paste0(name.id,'.y')
-                remix.data.1[,name.x] <- remix.data.1[,name.y]
-                remix.data.1[,name.y] <- NULL
+                if(name.x %in% names(remix.data.1))
+                {
+                    remix.data.1[,name.x] <- remix.data.1[,name.y]
+                    remix.data.1[,name.y] <- NULL
+                    }else{
+                    name.x <- name.id
+                }
                 tmp.name <- c(tmp.name, name.x)
             }
-#             remix.data.1[,'STOCK_NAME.x'] <- remix.data.1[,'STOCK_NAME.y']
-#             remix.data.1[,'GROUP.x'] <- remix.data.1[,'GROUP.y']
-#             remix.data.1[,'LAST_CLOSE.x'] <- remix.data.1[,'LAST_CLOSE.y']
-#             remix.data.1[,'STOCK_NAME.y'] <- NULL
-#             remix.data.1[,'GROUP.y'] <- NULL
-#             remix.data.1[,'LAST_CLOSE.y'] <- NULL
             tmp.name <- m_gsub(tmp.name, select.col.maininfo, names(remix.data.1))
             names(remix.data.1) <- tmp.name
             remix.data <- remix.data.1; rm(remix.data.1)
             }
-
     }
 
     # remove duplicated code of column
@@ -121,28 +119,27 @@ for( group.id in 1:length(analyze.group.conf))
                             oscillate.shrink.ret=rep(NA, nrow(remix.data))
                             ) 
                             
-    for(rowid in 1:nrow(remix.data)) {
-    
+    for(rowid in 1:nrow(remix.data)) 
+    {
         stock.code <- as.character(remix.data$STOCK_CODE[rowid])
         target.stock <- m_paste(c(data.path, stock.code, file.extension), op='')
         #data prepare
         tmp.stock.data$STOCK_CODE[rowid] <- stock.code
         
-        if(file.exists(target.stock)) {
-
+        if(file.exists(target.stock)) 
+        {
             stock.data.raw <- read.csv(target.stock,header=TRUE,sep=",")
             stock.data.xts <- xts(stock.data.raw[,-c(1)], order.by=as.Date(stock.data.raw[,1]))
             Clprs <- Cl(stock.data.xts)
-#             if((analyze.group %in% price.limits) && (mean(Clprs, na.rm=TRUE) < 30) ) next
             #check recorders average of 5 years
             if((analyze.group %in% price.limits) && (mean(tail(Clprs,(get.research.period*250)), na.rm=TRUE) < 30) ) next
-            }
+        }
 
         m_msg(info=paste('processing', rowid, '.of.', nrow(remix.data), '(', stock.code, ')'))
         Clprs <- Clprs[complete.cases(Clprs), ]
         names(Clprs) <- 'close'
         record.path <- m_paste(c(ma.path, stock.code, list.file.extension), op='')
-        trade.summary <- oscillation.indicator(Clprs=Clprs, record.path=record.path, auto.detect=TRUE)
+        trade.summary <- oscillation.indicator(Clprs=Clprs, record.path=record.path, auto.detect=FALSE)
 
         # resummary for function surge.indicator
         get.period <- sapply(tranSet.period, function(v) ifelse(v <= testSet.period[1], return(v),NA))
@@ -156,7 +153,6 @@ for( group.id in 1:length(analyze.group.conf))
         stock.ma$tension <- stock.ma$brown - stock.ma$red
         stock.ma$shrink <- apply(merge(stock.ma$brown, stock.ma$blue, stock.ma$red), 1,sd)
         stock.ma$shrink.ret <-  ROC(stock.ma$shrink)
-        
         ma.nrow <- nrow(stock.ma)
         tmp.stock.data$oscillate.brown[rowid] <- stock.ma$brown[ma.nrow]
         tmp.stock.data$oscillate.blue[rowid] <- stock.ma$blue[ma.nrow]
@@ -181,7 +177,7 @@ for( group.id in 1:length(analyze.group.conf))
     ### add analyzing column
         get.research.end <- as.numeric(testSet.period)
         get.research.start <- get.research.end - (get.research.period -1)
-        get.header <- c('Clspr.ret.Stdev', 'MaxDrawDOWN', 'RATE', 'RATE.max', 'SHARP_RATIO')
+        get.header <- c('LAST_CLOSE', 'Clspr.ret.Stdev', 'MaxDrawDOWN', 'RATE', 'RATE.max', 'SHARP_RATIO')
         all.header <- c()
         all.select.header.average <- c()
         all.select.header.weight <- c()
@@ -232,58 +228,6 @@ for( group.id in 1:length(analyze.group.conf))
     write.csv(remix.data, file=remix.filename )
 
 }
-
-stop()       
-    # for performance
-    selected.cols <- c('STOCK_CODE', 'STOCK_NAME', 'RATE.2019')
-    selected.listname <- remix.filename
-    selected.stock.raw <- read.csv(file=selected.listname, header=TRUE, sep=',')
-    backtest_num <- c(nrow(selected.stock.raw), 5)
-    selected.stock <- selected.stock.raw[, selected.cols]
-    selected.stock$STOCK_CODE <- as.character(selected.stock$STOCK_CODE)
-    
-    #
-    backtest.result <- m_performance.test(selected.stock=selected.stock, stock.data.path=data.path, testSet_period=testSet.period, tranSet_period=tranSet.period, trading.straregy_type=c(2,80,20,80,20), ef_goal_return=0.001, enable_reandom_stocks=FALSE, backtest_num=backtest_num, enable_fund_allocation=TRUE, ef_simulation_num=50, enable_ef_simulation.record=TRUE) 
-
-    #
-    all.stock.name <- backtest.result[["all.stock.name"]]
-    names(all.stock.name) <- c("STOCK_CODE","STOCK_NAME")
-    all.stock.tranSet.price <- backtest.result[["tranSet_data"]]
-    all.stock.ret <- na.omit(backtest.result[["all.stock.ret"]])
-    all.stock.traderet <- na.omit(backtest.result[["all.stock.traderet"]])
-    all.return <- backtest.result[["all.return"]]
-    all.assets <- backtest.result[["all.assets"]]
-    all.sim.assets <- na.omit(backtest.result[["all.sim.assets"]])
-    trading.straregy <- backtest.result[["trading.straregy"]]
-    
-    #Singal Stock performance
-    for (i in 1:length(index(all.stock.name))) {
-            windows()
-            backtest(all.stock.ret[,i],all.stock.traderet[,i],paste(all.stock.name[i,1],all.stock.name[i,2],sep=""))
-        }
-    
-    #group trading performance
-    title <- m_paste(c(ifelse("(F.A.)",""),"BACKTEST of Stock: ",m_paste(c(as.character(all.stock.name$STOCK_NAME)),op=" ")),op="")
-                                
-        windows()
-        backtest(all.return[,1], all.return[,2], title)
-        windows()
-        backtest(all.return[,1], all.return[,3], title)
-
-    #
-    windows()
-    par(mfrow=c(2,1))
-    plot(all.return,col=c("black","blue","green"),main="",sep="")
-    plot(all.assets,col=c("black","blue","green"),main="",sep="")
-
-    summary(all.return)
-    summary(all.assets)
-
-    windows()
-    t1 <- "FA.enable /"
-    t2 <- m_paste(trading.straregy,":")
-    tm <- m_paste(c("Strategy.profit_RATE v.s. Random.profit_RATE (",t1,t2,")"))
-    plot.xts(merge(all.assets, all.sim.assets),col=c("black","blue","green",rep("lightgray",100)),screens=1,main=tm)
 
 
     

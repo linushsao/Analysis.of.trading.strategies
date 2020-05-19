@@ -7,54 +7,62 @@
 #' @examples
 #' median_function(seq(1:10))
 
-signal.filter <- function(signal, max=0, co.indicator=NULL)
+signal.filter <- function(signal, max.days=0, value.filted=NULL, fixed.indicator=NULL)
 {
     row.num <- nrow(signal)
     tmp.data <- c(rep(0, row.num))
     signal[is.na(signal)] <- 0
     
-    if(max < 0) 
-    {
+    if(max.days < 0) 
+    {   # if down max.days days, sell it.
         signal[signal == 0] <- -1
         #work only for value <0
         for(rowid in 2:row.num) tmp.data[rowid] <- ifelse(  signal[rowid]<0, 
                                                             signal[rowid] + ifelse(tmp.data[rowid-1]>0, 0, tmp.data[rowid-1]),
                                                             signal[rowid]) 
-        #check if continue 3days <0 or using co.indicator                                                          
+        #check if continue [max.days]days <0                                                         
         for(rowid in 2:row.num) tmp.data[rowid] <- ifelse(  tmp.data[rowid]<0, 
-                                                            tmp.data[rowid] - (max-1),
+                                                            tmp.data[rowid] - (max.days-1),
                                                             tmp.data[rowid])
         for(rowid in 2:row.num) tmp.data[rowid] <- ifelse(  tmp.data[rowid]>0, 
                                                             1, 0);tmp1.data <- tmp.data   
-        if(! is.null(co.indicator)) {
-            for(rowid in 3:(row.num-3)) 
-            {
-                if(sum(tmp.data[(rowid-1):(rowid+1)])!=0 && !is.na(co.indicator[rowid-1]))
-                {
-                    if(mean(co.indicator[(rowid-1):(rowid+1)])>0){
-                        tmp.data[rowid] <- 1
-                        }else{
-                        tmp.data[rowid] <- 0}
-                }
-            }
-        }
-        
-    }else{
+    }
+    
+    if(max.days > 0)
+    { # if up max.days days, buy it.
         for(rowid in 2:row.num) tmp.data[rowid] <- signal[rowid] * (signal[rowid] + tmp.data[rowid-1])
 
             while(TRUE)
             {
-                if(row.num < 2 || max==0) break
+#                 if(row.num < 2 || max.days==0) break
+                if(row.num < 2) break
                 if( tmp.data[row.num] == 0 || is.na(tmp.data[row.num]) ) { row.num <- row.num -1 ; next }
         
                 t.range <- c((row.num - tmp.data[row.num] + 1) : row.num )
-                t.fill <- ifelse(tmp.data[row.num] > max, 1, 0)
+                t.fill <- ifelse(tmp.data[row.num] > max.days, 1, 0)
                 t.step <- tmp.data[row.num]
                 for( v.id in 1:length(t.range)) tmp.data[t.range[v.id]] <- t.fill
                 
                 row.num <- row.num - t.step 
             }
         }
+
+    if(! is.null(fixed.indicator)) {
+        tmp.data <- signal
+        co.indicator <- fixed.indicator[[1]]
+        co.mode <- fixed.indicator[[2]]
+        
+        if( co.mode == 'and' ) tmp.data <- as.numeric(tmp.data & co.indicator)
+        if( co.mode == 'not' ) tmp.data <- as.numeric(!(tmp.data & co.indicator))
+        if( co.mode == 'or' ) tmp.data <-  as.numeric(tmp.data | co.indicator)
+    }
+    
+    if(! is.null(value.filted))
+    {
+        tmp.data <- signal
+        if(value.filted[1] == 'min') tmp.data <- ifelse(tmp.data < value.filted[2], 0, tmp.data)
+        if(value.filted[1] == 'max') tmp.data <- ifelse(tmp.data > value.filted[2], 0, tmp.data)   
+    }
 #     return(data.frame(a=tmp.data, b=tmp1.data, c=co.indicator))
     return(tmp.data)
 }
