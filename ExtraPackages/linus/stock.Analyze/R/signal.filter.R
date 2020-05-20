@@ -47,7 +47,7 @@ signal.filter <- function(signal, max.days=0, value.filted=NULL, fixed.indicator
             }
         }
 
-    if(! is.null(fixed.indicator)) {
+    if(! is.null(fixed.indicator)) { #class(fixed.indicator) : list
         tmp.data <- signal
         co.indicator <- fixed.indicator[[1]]
         co.mode <- fixed.indicator[[2]]
