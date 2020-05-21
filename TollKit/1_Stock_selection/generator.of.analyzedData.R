@@ -22,10 +22,11 @@ if(analyze.group.id==0)
     analyze.group.conf <- c('index', 'stock', 'etf')[analyze.group.id]
     }
 # analyze.group.conf <- c('stock')
-get.research.period <- 5
+get.research.period <- as.numeric(get.conf(name='get.research.period'))
 price.limits <- c("stock")
 tranSet.period <-  c(2008:year(Sys.Date()))
 testSet.period <- c(2020)
+price.average.limited <- as.numeric(get.conf(name='price.average.limited'))
 
 env.config <- data.frame(
     data=c( "/home/linus/Project/9.Shared.Data/0_Global/Index/",
@@ -132,7 +133,7 @@ for( group.id in 1:length(analyze.group.conf))
             stock.data.xts <- xts(stock.data.raw[,-c(1)], order.by=as.Date(stock.data.raw[,1]))
             Clprs <- Cl(stock.data.xts)
             #check recorders average of 5 years
-            if((analyze.group %in% price.limits) && (mean(tail(Clprs,(get.research.period*250)), na.rm=TRUE) < 30) ) next
+            if((analyze.group %in% price.limits) && (mean(tail(Clprs,(get.research.period*250)), na.rm=TRUE) < price.average.limited) ) next
         }
 
         m_msg(info=paste('processing', rowid, '.of.', nrow(remix.data), '(', stock.code, ')'))

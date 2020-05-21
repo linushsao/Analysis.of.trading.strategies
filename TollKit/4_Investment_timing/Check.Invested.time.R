@@ -76,7 +76,7 @@ data.extension <- as.character(env.config[analyze.group, 'extension'])
 
 get.research.years <- 5
 #
-price.limits.value <- 40
+price.limits.value <- as.numeric(get.conf(name='price.average.limited'))
 data.length <- 150
 data.end <-as.character(as.Date(Sys.time()))
 data.start <- as.character(as.Date(Sys.time()) - data.length)
