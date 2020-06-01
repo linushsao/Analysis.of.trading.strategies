@@ -20,14 +20,10 @@
                     b <- c(rep(0,n),1,goal_return)
 
                     solve.res <- solve(L,b)
-                    #write.zoo(r_set,file="r_set.csv",sep=",")
-                    #write.zoo(goal_return,file="goal_return.csv",sep=",")
-                    #write.zoo(solve.res,file="solve_res.csv",sep=",")
-                    #write.zoo(L,file="L.csv",sep=",")
-                    #write.zoo(b,file="b.csv",sep=",")
 
                     wt <- solve.res[1:n]
                     return_mean <- r %*% wt
+                    wt <- abs(wt) / sum(abs(wt))
                     return_variance <- wt %*% Q %*% wt
                     return(c(return_mean,return_variance,wt))
                 }

@@ -13,19 +13,27 @@ wd.dir <- "/home/linus/Project/0_Comprehensive.Research/"
 setwd(wd.dir)
 
 #
-period <- '2020'
+get.input <- get.users.input() #get basic data of stock/eft/index
+if.force.update <- as.logical(get.users.input(prompt='Pls Enter If Force Update(T/F)', index='if.force.update'))
+stock.custom <- get.input[1]
+testSet.period <- get.input[2]
+analyze.group <- get.input[3]
+
+period <- testSet.period
+stock.extension <- dataset.MGR(group=c(analyze.group, 'extension', request='conf'))
 get.research.period <- as.numeric(get.conf(name='get.research.period'))
 transet.years <- paste0(as.character(as.numeric(period)-get.research.period+1), '::', as.character(as.numeric(period)))
 price.year.limited <- 2
 price.average.limited <- as.numeric(get.conf(name='price.average.limited'))
 indicator.Rescale <- c('roc') #roc / std
-stock.custom <- c('', '.TW', 'stock')
+
+stock.custom <- c(stock.custom, stock.extension, analyze.group)
 stock.code.custom <- paste0(stock.custom[1], stock.custom[2])
 # stock.code.custom <- NULL
 
 while(TRUE)
 {
-    if(! is.na(as.numeric(stock.code.custom[1])))
+    if(! is.na(stock.custom[1]))
     {
         stock.code <- stock.code.custom
         break
@@ -45,7 +53,7 @@ while(TRUE)
 }
 
 #system configure
-t.stock <- dataset.MGR(dataset.name=stock.code, group=c(stock.custom[3], 'data'), request='info')
+t.stock <- dataset.MGR(dataset.name=stock.code, group=c(stock.custom[3], 'data'), request='info', force.update=if.force.update)
 t.xts.raw <- xts(t.stock[,-c(1)], order.by=as.Date(t.stock[,c(1)]))[transet.years]
 
 if(stock.custom[3] == 'etf')
@@ -110,28 +118,28 @@ ma_shrink <- xts(apply(all.ma.s, 1, sd), order.by=(index(all.ma.s)))
 ma_shrink <- ma_shrink[complete.cases(ma_shrink), ]
 ma_tension <- all.ma.s$ma.s_20 - all.ma.s$ma.s_3 ; names(ma_tension) <- 'ma_tension'
 ma_tension <- ma_tension[complete.cases(ma_tension), ]
-ma_momentum <- cumsum(ma_tension); names(ma_momentum) <- 'ma_momentum'
-# ma_momentum.ret <- data.clean(ROC(m_std.data(ma_momentum)[['data']]), replace=0); names(ma_momentum.ret) <- 'ma_momentum.ret'
+ma_momentum.tension <- cumsum(ma_tension); names(ma_momentum.tension) <- 'ma_momentum.tension'
+ma_roc.shrink <- ROC(ma_shrink); names(ma_roc.shrink) <- 'ma_roc.shrink'
+ma_roc.shrink <- ma_roc.shrink[complete.cases(ma_roc.shrink),]
+
 #starting benefit counting
 t.return <- t.xts.raw$Close
 t.return$ret <- ROC(t.return$Close)
 t.return$ma_shrink <- rescale(ma_shrink)
 t.return$ma_tension <- rescale(ma_tension)
-t.return$ma_momentum <- rescale(ma_momentum)
-# ma_momentum.ret <- (data.clean(ROC(m_std.data(na.omit(t.return$ma_momentum))[['data']])))
-# names(ma_momentum.ret) <- 'ma_momentum.ret'
-# t.return <- merge(t.return, ma_momentum.ret)
+t.return$ma_momentum.tension <- rescale(ma_momentum.tension)
+t.return$ma_roc.shrink <- rescale(ma_roc.shrink)
 t.return <- t.return[complete.cases(t.return), ]
 
-#fix ma_momentum by ma_momentum.ret
-fixed.indicator <- data.frame(t.return$ma_momentum, t.return$ma_tension)
+#fix ma_momentum.tension by ma_momentum.tension.ret
+fixed.indicator <- data.frame(t.return$ma_momentum.tension, t.return$ma_tension)
 fixed.indicator$ma_tension.logic <- ifelse(fixed.indicator$ma_tension >0 , 1, -1)
-fixed.indicator$trade.signal.raw  <- abs(fixed.indicator$ma_momentum) * fixed.indicator$ma_tension.logic
+fixed.indicator$trade.signal.raw  <- abs(fixed.indicator$ma_momentum.tension) * fixed.indicator$ma_tension.logic
 
-# t.return$trade.signal.raw  <-t.return$ma_momentum * t.return$ma_momentum.ret
 t.return$trade.signal.raw  <- fixed.indicator$trade.signal.raw
 t.return$trade.signal  <- ifelse(t.return$trade.signal.raw  < 0, 1, 0)
 rm(fixed.indicator)
+
 #using signal filter
 t.return$trade.signal.softmax <- signal.filter(t.return$trade.signal, max.days=3)
 t.return$trade.dailyEarn <- (t.return$ret * t.return$trade.signal.softmax)
@@ -139,21 +147,21 @@ t.return$trade.dailyEarn <- (t.return$ret * t.return$trade.signal.softmax)
 result <- t.return$trade.dailyEarn[period]
 result$return <- cumprod(1 + (result$trade.dailyEarn[period]))
 
-write.zoo(merge(t.return, result$return, all.ma, ROC(all.ma$ma_20)), file='test.csv')
+write.zoo(merge(t.return, result$return, all.ma, ROC(all.ma$ma_20)), file=paste0('/home/linus/Project/0_Comprehensive.Research/00_raw.data/', 'ma.investingData_', analyze.group, '.',as.Date(Sys.time()), '.csv'))
 
 x11()
 chartSeries(t.xts.raw[period], up.col='red', dn.col='green') #data.from: RAW, others from scale
 addTA(all.ma[period], col=c("red",'blue',"green","darkgray"), on=1)
-addTA(merge(ma_tension, ma_shrink)[period],col=c('blue', 'red', 'gray48', rep('gray1',2), rep('purple4',4)))
-addTA(merge(ma_momentum, 0)[period], col=c('cyan1','darkgray'))
+addTA(merge(ma_tension, ma_shrink, 0)[period],col=c('brown','chartreuse4', 'darkgray', rep('gray1',2), rep('purple4',4)))
+addTA(merge(ma_momentum.tension, 0)[period], col=c('cyan1','darkgray'))
 addTA(result$return, col='blue')
 
-if(! is.na(as.numeric(stock.code.custom)))
+if(! is.na(stock.custom[1]))
 {
     stock.list <- dataset.MGR(group=c(stock.custom[3],'list'), request='info')
     string.leng <- as.numeric(dataset.MGR(group=c(stock.custom[3],'string.leng'), request='conf'))
     stock.list$STOCK_CODE <- sapply(as.character(stock.list$STOCK_CODE) , function(v) m_check.code(v, num=string.leng))
-    tmp.code <- c(gsub('.TW', '', stock.code.custom))
+    tmp.code <- ifelse((analyze.group != 'index'), gsub('.TW', '', stock.code.custom), stock.code.custom)
     tmp.name <- apply(stock.list, 1, function(v) return(ifelse(v[1]==tmp.code, v[2], NA)))
     tmp.name <- tmp.name[!is.na(tmp.name)]
     sample.stock <- data.frame(code=tmp.code, name=tmp.name)
@@ -164,7 +172,7 @@ x11()
 par(mfrow=c(3,2))
 plot(t.return$Close[period], main=title, col='red')
 plot(t.return$Close[period], main=title, col='red')
-plot(merge(t.return$trade.signal.softmax, t.return$trade.signal.raw)[period], col=c('blue', 'coral1'))
-plot(merge(t.return$ma_tension, t.return$ma_shrink, 0)[period], col=c('blue', 'brown', 'darkgray'))
+plot(merge(t.return$trade.signal.softmax, t.return$ma_momentum.tension, t.return$trade.signal.raw)[period], col=c('blue', 'cyan4', 'coral1'))
+plot(merge(t.return$ma_tension, t.return$ma_momentum.tension, t.return$ma_shrink, 0)[period], col=c('brown', 'cyan4', 'chartreuse4', 'darkgray'))
 plot(result$return, col='purple',main=paste0('max: ', round(max(result$return),4),' average: ', round(mean(result$return), 4)))
-plot(merge(t.return$ma_momentum, t.return$ma_tension, t.return$trade.signal.raw, 0)[period], col=c('cyan4', 'blue', 'red', 'darkgray'))
+plot(merge(t.return$ma_momentum.tension, t.return$ma_tension, t.return$trade.signal.raw, 0)[period], col=c('cyan4', 'brown', 'coral1', 'darkgray'))

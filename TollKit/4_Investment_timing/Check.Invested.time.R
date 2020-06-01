@@ -2,7 +2,7 @@ rm(list=ls())
 graphics.off() 
 
 # load.library
-LIBRS <- c('quantmod','stringr','xts','TTR','roxygen2','rlist','PerformanceAnalytics','tseries')
+LIBRS <- c('quantmod','stringr','xts','TTR','roxygen2','rlist','PerformanceAnalytics','tseries', 'stats')
 sapply(LIBRS,library,character.only=TRUE)
 
 setwd("/home/linus/Project/1_R/Analysis.of.trading.strategies/ExtraPackages/linus/stock.Analyze/")
@@ -14,24 +14,6 @@ library("stock.Analyze")
 research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 setwd(research.path.of.linus)
 
-## environment configure
-env.config <- data.frame(
-    data=c( "/home/linus/Project/9.Shared.Data/0_Global/Index/",
-            "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stock.price/",
-            "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/etf.price/"),
-    list=c( "/home/linus/Project/1_R/Analysis.of.trading.strategies/world.wide.broad.index.csv",
-            "/home/linus/Project/1_R/Analysis.of.trading.strategies/all_codes.csv",
-            "/home/linus/Project/1_R/Analysis.of.trading.strategies/all.ETF.code.csv"),
-    remix=c(    "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/03_index/",
-                "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/",
-                "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/02_etf/"),
-    ma=c(    "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/02_Index/",
-             "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/01_stock/",
-             "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/03_etf/"),
-    extension=c("",".TW",".TW"),
-    row.names=c('index', 'stock', 'etf')
-)
-
 trigger.action.mat <- data.frame(
     ind=c('blue','blue','blue' ),
     level=c('green','purple','purple' ),
@@ -41,27 +23,11 @@ auto.down <- TRUE
 file.extension <- ".csv"
 ## 
 # stock.custom <- NULL #stock.code
-stock.custom <- readline(prompt=paste0('Enter Code of object for Analyzation (', get.conf(name='stock.custom'),'): ')) #stock.code
-testSet.period <- as.character(readline(prompt=paste0('Enter period of object for Analyzation (', get.conf(name='testSet.period'),'): ')))
-analyze.group <- readline(prompt=paste0('Enter Group(index | stock | etf) of object for Analyzation  (', get.conf(name='analyze.group'),'): '))  #select analyze.group
-    if(stock.custom != '')
-    {
-        set.conf(name='stock.custom', value=stock.custom)
-        }else{
-        stock.custom <- get.conf(name='stock.custom')
-    }
-    if(analyze.group != '')
-    {
-        set.conf(name='analyze.group', value=analyze.group)
-        }else{
-        analyze.group <- get.conf(name='analyze.group')
-    }
-    if(testSet.period != '')
-    {
-        set.conf(name='testSet.period', value=testSet.period)
-        }else{
-        testSet.period <- get.conf(name='testSet.period')
-    }    
+get.input <- get.users.input() #get basic data of stock/eft/index
+
+stock.custom <- get.input[1]
+testSet.period <- get.input[2]
+analyze.group <-  get.input[3]
     
 trigger.action.custom <- c('brown','orange')
 #for index: blue over green
@@ -69,10 +35,10 @@ trigger.action.custom <- c('brown','orange')
 #for etf  : blue over (purple | orange)
 #for Serious global impact(ex. 2020COVID, 2008FinancialCrisis) brown over orange
 
-data.path <- as.character(env.config[analyze.group, 'data'])
-list.pat <- as.character(env.config[analyze.group, 'list'])
-ma.path <- as.character(env.config[analyze.group, 'ma'])
-data.extension <- as.character(env.config[analyze.group, 'extension'])
+data.path <- dataset.MGR(group=c(analyze.group, 'data', request='conf'))
+list.pat <- dataset.MGR(group=c(analyze.group, 'list', request='conf'))
+ma.path <- dataset.MGR(group=c(analyze.group, 'ma', request='conf'))
+data.extension <- dataset.MGR(group=c(analyze.group, 'extension', request='conf'))
 
 get.research.years <- 5
 #
@@ -81,7 +47,6 @@ data.length <- 150
 data.end <-as.character(as.Date(Sys.time()))
 data.start <- as.character(as.Date(Sys.time()) - data.length)
 testSet.period <- ifelse(is.null(testSet.period), paste(data.start, data.end, sep='::'), testSet.period)
-# testSet.period.end <-unlist(strsplit(testSet.period, '::'))
 code.list <- paste(research.path.of.linus, analyze.group, '.RAW.', as.numeric(testSet.period)-1, file.extension, sep='')
 
 stock.code.list <- read.csv(code.list, header=TRUE, sep=",")
@@ -120,9 +85,8 @@ stock.type <- ifelse(analyze.group != 'index', as.character(stock.code.list[,6])
             stock.data.monthly <- to.monthly(na.omit(stock.data.xts))
             names(stock.data.monthly) <- names(stock.data.xts)
             Clprs <- Cl(stock.data.xts[testSet.period])
-#             if(analyze.group == 'index') Clprs <- log(Clprs) * 10
             len.Clprs <- nrow(Clprs)
-            if( (analyze.group != 'stock') || (mean(Clprs) > price.limits.value) ) {break}
+            if( (analyze.group != 'stock') || (mean(Clprs) > price.limits.value) || (!is.null(get.input))) {break}
             
             }else{
                 m_msg(info=paste('file: ',target.stock,' not founded',sep=''))
@@ -134,7 +98,6 @@ stock.type <- ifelse(analyze.group != 'index', as.character(stock.code.list[,6])
 
         if(is.null(trigger.action.custom)) trigger.action.custom <- as.vector(t(trigger.action.mat[analyze.group,]))
         trade.summary <- oscillation.indicator(Clprs=Clprs, trigger.action=trigger.action.custom)
-#         trade.signal.added <- oscillation.indicator(Clprs=Clprs, trigger.action=c('red', 'orange'))[[1]]
 
         # resummary for function surge.indicator <<
         trade.signal <- trade.summary[[1]][testSet.period]
@@ -165,7 +128,7 @@ stock.type <- ifelse(analyze.group != 'index', as.character(stock.code.list[,6])
         trade.signal.xts <- trade.signal.xts[complete.cases(trade.signal.xts)]
 
         #saveing...
-        ma.filename <- m_paste(c(as.character(env.config[analyze.group, 'ma']), stock.custom, '.', testSet.period, '_', as.character(as.Date(Sys.time())), '.csv'), op="")
+        ma.filename <- m_paste(c(ma.path, stock.custom, '.', testSet.period, '_', as.character(as.Date(Sys.time())), '.csv'), op="")
         write.csv(stock.ma, file=ma.filename )
         
         #buy in timmer
@@ -188,8 +151,6 @@ stock.type <- ifelse(analyze.group != 'index', as.character(stock.code.list[,6])
         
         x11()
         library(TSA)
-#         par(mfrow=c(3,2))
-#         my.par <- par(mfrow=c(3,2))
         par.mat <- matrix(c(3,5,5,1,2,4), 3,2)
         layout(par.mat)
         acf.data <- acf(na.omit(ROC(Cl(stock.data.xts))), lag.max=data.length, plot=FALSE)
@@ -202,8 +163,6 @@ stock.type <- ifelse(analyze.group != 'index', as.character(stock.code.list[,6])
             per.sort$seasonal <- 1 / per.sort$freq
         plot(density(per.sort$seasonal), main=m_paste(c('Seasonal :', round(per.sort$seasonal,2)[1:7]), op=' | '))
         barplot(per.sort$seasonal[1:15], names.arg=round(per.sort$seasonal[1:15],2), type='l',main=m_paste(c('Seasonal :', round(per.sort$seasonal,2)[1:7]), op=' | '))
-
-        
         
         x11()
         par(mfrow=c(3,1))    
@@ -247,8 +206,8 @@ stock.type <- ifelse(analyze.group != 'index', as.character(stock.code.list[,6])
             trigger.mat['purple','max'], trigger.mat['purple','min'], 
             trigger.mat['orange','max'], trigger.mat['orange','min'], 
             trigger.mat['deep pink','max'], trigger.mat['deep pink','min'] ),
-            main=paste('Graph 1B ', main.title),col=c('brown','chartreuse4', 'black',m_dupli.vector(rownames(trigger.mat))))
-        plot(merge(stock.ma$shrink.ret, 0, 3, -3), col=c('darkslategrey', 'black', 'darkslategray3', 'darkslategray3'), main=paste('Graph 3B ', main.title))
+            main=paste('Graph 3B ', main.title),col=c('brown','chartreuse4', 'black',m_dupli.vector(rownames(trigger.mat))))
+        plot(merge(stock.ma$shrink.ret, 0, 3, -3), col=c('darkslategrey', 'black', 'darkslategray3', 'darkslategray3'), main=paste('Graph 3C ', main.title))
 
        x11()
         par(mfrow=c(1,1))
@@ -257,4 +216,4 @@ stock.type <- ifelse(analyze.group != 'index', as.character(stock.code.list[,6])
             trigger.mat['purple','max'], trigger.mat['purple','min'], 
             trigger.mat['orange','max'], trigger.mat['orange','min'], 
             trigger.mat['deep pink','max'], trigger.mat['deep pink','min'],0 ),
-            lwd=c(rep(1.5,5), rep(1,4),1) , col=c(indicator.color, m_dupli.vector(rownames(trigger.mat))), main=m_paste(c('Graph 3A ', main.title, ' (', trigger.action[1], ' over ', trigger.action[2], ')'), op=''))
+            lwd=c(rep(1.5,5), rep(1,4),1) , col=c(indicator.color, m_dupli.vector(rownames(trigger.mat))), main=m_paste(c('Graph 4A ', main.title, ' (', trigger.action[1], ' over ', trigger.action[2], ')'), op=''))

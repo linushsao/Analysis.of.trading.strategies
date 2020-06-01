@@ -7,15 +7,17 @@
 #' @examples
 #' median_function(seq(1:10))
 
-
-m_performance.test <- function(selected.stock=NULL, stock.data.path=NULL, testSet_period=NULL, tranSet_period=NULL, trading.straregy_type=c(2,80,20,80,20), ef_goal_return=0.001, enable_reandom_stocks=FALSE, backtest_num=c(0, 5), enable_fund_allocation=TRUE, ef_simulation_num=50, enable_ef_simulation.record=TRUE) {
-
+m_performance.test <- function( selected.list=NULL, 
+                                testSet_period=NULL, tranSet_period=NULL, trading.straregy_type=c(2,80,20,80,20), 
+                                ef_goal_return=0.001, 
+                                enable_reandom_stocks=FALSE, enable_fund_allocation=TRUE, ef_simulation_num=50, enable_ef_simulation.record=TRUE, 
+                                memo='',
+                                job.id=NULL) {
     #basic options
     #1.是否(TRUE/FALSE)使用除錯模式，將以testing data取代
     #2.what test data
     #3.kd type
 
-    #backtest_num 於報酬率前n名中取m名股票編號
     #enable_fund_allocation 是否(TRUE/FALSE)使用資產配置理論
     #trading.straregy_type (交易策略1=KD based R,2=KD based KDvalue,3=KD based KDJvalue,其他交易策略參數)
     #ef_goal_return 效率前緣做資產配置之**每日**預期報酬率
@@ -25,18 +27,8 @@ m_performance.test <- function(selected.stock=NULL, stock.data.path=NULL, testSe
     simulation.record.filename <- m_env(name="simulation.record.filename",mode="r")  #模擬配置儲存檔名
     #
     #Data prepare
-    get.stock_code <- selected.stock$STOCK_CODE
-    get.stock_chinesename <- selected.stock$STOCK_NAME
-    get.stock_rate <- selected.stock$RATE
-
-    if(backtest_num[1] != 0) {
-        backtestSet_period <- sample(backtest_num[1],backtest_num[2]) #於報酬率前n名中取m名股票編號
-        }else{
-            backtestSet_period <- c(1:backtest_num[2]) #取前n名亂數對照組的股票來測試 
-        }
-
-    select_stock <- get.stock_code[backtestSet_period] #選股矩陣
-    select_stock_rate <- get.stock_rate[backtestSet_period] #報酬率矩陣
+    get.stock_code <- selected.list[,1]
+    get.stock_chinesename <- selected.list[,2]
 
     # main function
     data_RAW <- xts()
@@ -44,11 +36,10 @@ m_performance.test <- function(selected.stock=NULL, stock.data.path=NULL, testSe
     all_tradeRET <- xts()
     all_tradeRET_weight <- xts()
     all_stock_closeprice <- xts()
-
-    for(i in 1:length(select_stock)){
+    for(rowid in 1:nrow(selected.list)){
         #DATA prepare
-        stock_name <- select_stock[i]
-        file_name_csv <-  m_paste(c(stock.data.path, stock_name, ".csv"),op='')
+        stock_name <- paste(selected.list[rowid, 1], selected.list[rowid, 2])
+        file_name_csv <-  as.character(selected.list[rowid, 3])
         data_RAW <- read.csv(file_name_csv,header=TRUE) #read selected stocks data
         data_RAW <- data_RAW[complete.cases(data_RAW),]
         names(data_RAW) <- c("Index","Open","High","Low","Close","Volume","Adjusted")
@@ -75,18 +66,15 @@ m_performance.test <- function(selected.stock=NULL, stock.data.path=NULL, testSe
 
         #for TrainSet
         all_stock_closeprice <- cbind(all_stock_closeprice,close)
-    
     }
+            
     #End of Function
     #default portfolio =1
-    # names(all_stock_closeprice) <- select_stock
-    BuyHold <- xts(apply(all_RET,1,function(x) sum(x)/length(select_stock)),order.by=index(all_RET))  #買後放著至期末
+    BuyHold <- xts(apply(all_RET,1,function(x) sum(x)/length(get.stock_code)),order.by=index(all_RET))  #買後放著至期末
     names(BuyHold) <- "AVERAGE"
 
-    Trading.straregy_method <-  xts(apply(all_tradeRET,1,sum),order.by=index(all_tradeRET)) / length(select_stock) #加上使用交易策略（此為KD)
+    Trading.straregy_method <-  xts(apply(all_tradeRET,1,sum),order.by=index(all_tradeRET)) / length(get.stock_code) #加上使用交易策略（此為KD)
     names(Trading.straregy_method ) <- "AVERAGE"
-
-#     write.csv(merge(BuyHold,Trading.straregy_method),file=".check_KDTrade1.csv")
 
     #使用資產配置理論(效率前緣)
     if (enable_fund_allocation) {
@@ -109,8 +97,7 @@ m_performance.test <- function(selected.stock=NULL, stock.data.path=NULL, testSe
         all_tradeRET_weight <- all_RET 
         }
 
-        all_tradeRET_weight <- xts(all_tradeRET_weight ,order.by=index(all_tradeRET))
-    # fund.Allocation_method <- as.data.frame(all_tradeRET_weight)
+    all_tradeRET_weight <- xts(all_tradeRET_weight ,order.by=index(all_tradeRET))
     fund.Allocation_method <- all_tradeRET_weight
     names(fund.Allocation_method) <- "AVERAGE" #加上使用資產配置理論
 
@@ -127,7 +114,7 @@ m_performance.test <- function(selected.stock=NULL, stock.data.path=NULL, testSe
     if (ef_simulation_num != 0) {
         L <- ef_simulation_num
         sim_weight <- t(sapply(1:L,FUN=function(i){
-            weight <- runif(length(select_stock),min=0,max=1)
+            weight <- runif(length(get.stock_code),min=0,max=1)
             weight <- weight/sum(weight)
             return(weight)
             }))
@@ -148,7 +135,7 @@ m_performance.test <- function(selected.stock=NULL, stock.data.path=NULL, testSe
     if( enable_ef_simulation.record ) {
 
         filename <- paste(research.path.of.linus, simulation.record.filename, sep="")
-        title <- c("Date", "Strategy", "testSet_period", "tranSet_period", "Stocks", "Portfolio", "Min", "Median", "Max", "Range", "Sd", "Var", "Cor")
+        title <- c("Date", 'Id', 'Stock_num', "Strategy", "testSet_period", "tranSet_period", "Stocks", "Portfolio", "Min", "Median", "Max", "Sd", "Var", "Cor", 'Memo')
         
         if (! file.exists(filename) ) {
             z.temp <- as.data.frame(t(rep(NA,length(title))))
@@ -157,28 +144,29 @@ m_performance.test <- function(selected.stock=NULL, stock.data.path=NULL, testSe
             } 
 
             z.file <- read.csv(filename,header=TRUE,sep=",")[,-c(1)] 
-            
+
             all.assets.name <- names(all_assets)
-            
+            z.id <- ifelse(is.null(job.id), random_id(bytes = 8), job.id)
+            z.stock_num <- length(get.stock_code)
+
             for(i in 1:length(all.assets.name)) {
                 
                 z.asset <- all_assets[,i]
                 
-                z.name <- all.assets.name[i]
                 z.date <- format(Sys.time(), "%Y-%m-%d")
+                z.name <- all.assets.name[i]
                 z.testSet_period <- m_paste(testSet_period,op=" ")
                 z.tranSet_period <- m_paste(tranSet_period,op=" ")
-                z.stocks <-  m_paste(c("(",select_stock,")"),op=" ")
+                z.stocks <-  m_paste(c("(",get.stock_code,")"),op=" ")
                 z.portfolio<- m_paste(c("(",portfolio_weight,")"),op=" ")
                 z.min <-min(z.asset)
                 z.median <- median(z.asset)
                 z.max <- max(z.asset)
-                z.range<- m_paste(c("(",m_paste(as.vector(range(z.asset)),op=" ~ "),")"),op=" ")
                 z.sd <- sd(z.asset)       
                 z.var <- var(z.asset)
                 z.cor_ <- m_paste(c("(",as.vector(z.cor[1,]),")"),op=" ")
-                
-                z.temp <- c(z.date, z.name, z.testSet_period, z.tranSet_period, z.stocks, z.portfolio, z.min, z.median, z.max, z.range, z.sd, z.var, z.cor_)
+                z.memo <- memo
+                z.temp <- c(z.date, z.id, z.stock_num, z.name, z.testSet_period, z.tranSet_period, z.stocks, z.portfolio, z.min, z.median, z.max, z.sd, z.var, z.cor_, z.memo)
     #             
                 if(i == 1) {
                     z.collect <- z.temp
@@ -192,14 +180,13 @@ m_performance.test <- function(selected.stock=NULL, stock.data.path=NULL, testSe
                 names(z.collect ) <- title
 
                 z.file <- rbind(z.file, z.collect)
-    #             names(z.file) <- title
                 rownames(z.file) <- NULL
                 write.csv(z.file,file=filename) 
         }
 
 #     z.cor
-    stock.name <- data.frame(select_stock, get.stock_chinesename[backtestSet_period])
-    result <- list(all.stock.name=stock.name, trading.straregy=trading.straregy_type, tranSet_data=tranSet_data,all.stock.ret=all_RET,all.stock.traderet=all_tradeRET,all.return=all_return, all.assets=all_assets, all.sim.assets=sim_cum_return)
+    stock.name <- data.frame(get.stock_code, get.stock_chinesename)
+    result <- list(all.stock.name=stock.name, trading.straregy=trading.straregy_type, tranSet_data=tranSet_data,all.stock.ret=all_RET,all.stock.traderet=all_tradeRET,all.return=all_return, all.assets=all_assets, all.sim.assets=sim_cum_return, portfolio=portfolio, id=job.id)
     return(result)
     
 }

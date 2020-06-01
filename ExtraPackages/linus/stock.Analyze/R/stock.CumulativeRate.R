@@ -15,10 +15,7 @@ stock.CumulativeRate <- function(data,strategy_type=NULL,strategy_params=c(9,3,3
 #type:default 1/KD , strategy_params=c(nFastK,nFastD,nSlowD)
     
     if(strategy_type == 1)  {
-    #    KD_RAW <- na.omit(stoch(HLC(data[test_period[1]]),nFastK = value_fastK, nFastD = value_fastD, nSlowD = value_slowD))
         KD_RAW <- na.omit(stoch(HLC(data),nFastK = strategy_params[1], nFastD = strategy_params[2], nSlowD = strategy_params[3]))
- #       KD_TREND <- KD_RAW$fastK-KD_RAW$fastD
-#        names(KD_TREND) <- "K-D"
         #API
         KValue <- KD_RAW$fastK
         DValue <- KD_RAW$fastD
@@ -69,14 +66,10 @@ stock.CumulativeRate <- function(data,strategy_type=NULL,strategy_params=c(9,3,3
         names(FULLSignal) <- "KDSignal"       
         if(strategy_type == 3){
             JSignal <- ifelse(JValue>100,-1,ifelse(KValue<0,1,0))
-            #head(JSignal[JSignal == -1])
             signal <- merge(FULLSignal,JSignal)
-            #head(signal)
 
             FULLSignal <- xts(apply(signal,1,sum),order.by=index(JSignal))
             names(FULLSignal) <- "KDJSignal"
-            #head(KDJSignal[KDJSignal >= 2])
-            #head(KDJSignal[KDJSignal <= -2])
             }
         }else if(strategy_type==4){
     
@@ -113,18 +106,6 @@ stock.CumulativeRate <- function(data,strategy_type=NULL,strategy_params=c(9,3,3
     ###
     
             }
-
-
-
-#        trade <- function(signal,price){
-#            ret <- ROC(price,n=1,type="discrete")[-1]
-#            names(ret) <- "ret"
-#            signal <- na.omit(lag(signal,1))
-#            tradeRet <- ret * signal
-#            names(tradeRet) <- "tradeRet"
-#            Return <- na.omit(merge(ret,tradeRet))
-#            return(Return)
-#        }
 
         close <- data$Close
         KDtrade <- tradeBysignal(FULLSignal,close)

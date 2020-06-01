@@ -19,7 +19,7 @@
 # setwd("/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stocks.preDownload/")
 
 dataset.MGR <- function(
-                dataset.name=NULL, group=c("stock",'data'), request='path', 
+                dataset.name=NULL, group=c("stock",'data'), request='conf', force.update=FALSE,
                 file.extension=".csv", header=TRUE, to.exts=FALSE, online=FALSE, verbose=FALSE)
 {
 
@@ -44,7 +44,11 @@ dataset.MGR <- function(
         ma=c(    "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/02_Index/",
                 "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/01_stock/",
                 "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/03_etf/"),
+        raw=c(  "/home/linus/Project/0_Comprehensive.Research/00_raw.data/",
+                "/home/linus/Project/0_Comprehensive.Research/00_raw.data/",
+                "/home/linus/Project/0_Comprehensive.Research/00_raw.data/"),
         extension=c("",".TW",".TW"),
+        string.leng=c(0, 4, 5),
         row.names=c('index', 'stock', 'etf')
     )
 
@@ -63,7 +67,7 @@ dataset.MGR <- function(
                         result <- z.file
                         return(result)
                         },
-            path =  { return(as.character(data.path(group))) }
+            conf =  { return(as.character(data.path(group))) }
         )
     }        
                 
@@ -82,9 +86,10 @@ dataset.MGR <- function(
             get.Inquire.data <- function(){
                     if(! is.null(dataset.name) )
                     {
-                    file_name_csv <-  as.character(paste0(data.path(group), dataset.name, file.extension))
-                    }else{
-                    file_name_csv <-  as.character(data.path(group))
+                        file_name_csv <-  as.character(paste0(data.path(group), dataset.name, file.extension))
+                        if(!file.exists(file_name_csv) || force.update) write.zoo(getSymbols(dataset.name, auto.assign=FALSE), file=file_name_csv, sep = ",")
+                        }else{
+                        file_name_csv <-  as.character(data.path(group))
                     }
                     
                     z.file <- read.csv(file_name_csv, header=header, sep=",")

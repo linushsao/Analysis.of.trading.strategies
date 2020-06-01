@@ -7,7 +7,8 @@
 dataset.MGR(
   dataset.name = NULL,
   group = c("stock", "data"),
-  request = "path",
+  request = "conf",
+  force.update = FALSE,
   file.extension = ".csv",
   header = TRUE,
   to.exts = FALSE,

@@ -5,17 +5,17 @@
 \title{A muti_backtestt Function}
 \usage{
 m_performance.test(
-  selected.stock = NULL,
-  stock.data.path = NULL,
+  selected.list = NULL,
   testSet_period = NULL,
   tranSet_period = NULL,
   trading.straregy_type = c(2, 80, 20, 80, 20),
   ef_goal_return = 0.001,
   enable_reandom_stocks = FALSE,
-  backtest_num = c(0, 5),
   enable_fund_allocation = TRUE,
   ef_simulation_num = 50,
-  enable_ef_simulation.record = TRUE
+  enable_ef_simulation.record = TRUE,
+  memo = "",
+  job.id = NULL
 )
 }
 \arguments{

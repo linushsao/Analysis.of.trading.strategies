@@ -7,7 +7,7 @@
 get.conf(
   name,
   env.name = "env",
-  default.conf,
+  default.conf = NULL,
   splite.char = FALSE,
   splite.num = FALSE
 )
