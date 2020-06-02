@@ -13,9 +13,10 @@ wd.dir <- "/home/linus/Project/0_Comprehensive.Research/"
 setwd(wd.dir)
 
 #
+color.plate <- c('chartreuse', 'chocolate1', 'cyan4', 'darkgoldenrod1', 'green', 'darkolivegreen2', 'gold', 'mediumpurple1')
 get.input <- get.users.input() #get basic data of stock/eft/index
 if.force.update <- as.logical(get.users.input(prompt='Pls Enter If Force Update(T/F)', index='if.force.update'))
-fitler.type <- as.numeric(get.users.input(prompt='Pls Enter Filter mod(0/1/2, default:0)', index='fitler.type'))
+fitler.type <- as.character(get.users.input(prompt='Pls Enter Filter mod( (d)efault / (f)ebo / (p)eri /((c)ustom )', index='fitler.type'))
 
 stock.custom <- get.input[1]
 testSet.period <- get.input[2]
@@ -75,13 +76,13 @@ t.xts.raw <- t.xts.raw[complete.cases(t.xts.raw),]
 if(indicator.Rescale == 'std') t.xts <- m_std.data(t.xts.raw)[['data']]
 if(indicator.Rescale == 'roc') t.xts <- ROC(t.xts.raw)
 
-ma.value.generator <- function(Clprs, level=0.01, drop=0)
-{
+ma.value.generator <- function(Clprs, level=5, drop=0)
+{   
     per <- periodogram(na.omit(ROC(Clprs)), plot=FALSE)
     per_df <- data.frame(freq=per$freq, spec=per$spec)
     per.sort <- per_df[order(-per_df$spec),]
     per.sort$seasonal <- 1 / per.sort$freq
-    per.sort <- per.sort[per.sort$spec > level,]    
+    per.sort <- per.sort[(1:level), ]    
     per.sort$seasonal.round <- round(per.sort$seasonal, 0)
     ma.VALUE.per <- sort(unique(per.sort$seasonal.round ))    
     if(drop != 0) ma.VALUE.per <- ma.VALUE.per[ma.VALUE.per < drop]
@@ -92,11 +93,16 @@ ma.value.generator <- function(Clprs, level=0.01, drop=0)
 t.xts <- t.xts[complete.cases(t.xts), ]
 ma.trend.data <- t.xts.raw$Close
 ma.VALUE <- c(3,5,10,20)
-if(fitler.type == 1) ma.VALUE <- m_series(n=8)[-c(1:3)] # F series
-if(fitler.type == 2) 
+if(fitler.type == 'f') ma.VALUE <- m_series(n=8)[-c(1:3)] # F series
+if(fitler.type == 'p') 
 {
 ma.VALUE <- ma.value.generator(Cl(t.xts.raw), drop=40)[['ma.value']]
 if(! ma.VALUE >20) ma.VALUE <-c(ma.VALUE, 20)
+}
+if(fitler.type == 'c')
+{
+ma.value.raw <- as.character(get.users.input(prompt='Pls Enter ma.value(sep with ,)', index='ma.value.raw'))
+ma.VALUE <- as.numeric(unlist(strsplit(ma.value.raw, ",", fixed = TRUE)))    
 }
 
 select.col.ma <- c()
@@ -174,7 +180,7 @@ result$return <- cumprod(1 + (result$trade.dailyEarn[period]))
 
 x11()
 chartSeries(t.xts.raw[period], up.col='red', dn.col='green') #data.from: RAW, others from scale
-addTA(all.ma[period], col=rand_color(ncol(all.ma)), on=1)
+addTA(all.ma[period], col=color.plate[sample(length(color.plate), ncol(all.ma))], on=1)
 # addTA(all.ma[period], col=c("red",'blue',"green","darkgray"), on=1)
 addTA(merge(ma_tension, ma_shrink, 0)[period],col=c('brown','chartreuse4', 'darkgray', rep('gray1',2), rep('purple4',4)))
 addTA(merge(ma_momentum.tension, 0)[period], col=c('cyan1','darkgray'))
