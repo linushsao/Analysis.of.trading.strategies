@@ -1,4 +1,4 @@
-#' A m_check.code Function
+#' A m_remix.data Function
 #'
 #' This function allows you to multi paste vector.
 #' @param x A numeric vector.
@@ -29,15 +29,6 @@
         return(result)
     }
 
-    
-#
-# stop()
-# wd.dir <- "/home/linus/Project/0_Comprehensive.Research/"
-# setwd(wd.dir)
-# 
-# filename='/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/remix.stock.2020_2020-06-02.csv'
-# data <- read.csv(filename, header=TRUE, sep=',')[,-c(1)]
-# data.1 <- m_remix.data(data=data.1, mode=c('add.col','sort','RATE.2017'))
-# write.csv(data.1, file='test.csv')
+
 
 
