@@ -4,7 +4,7 @@
 \alias{m_time.invested}
 \title{A m_time.invested Function}
 \usage{
-m_time.invested(data = NULL, ma.VALUE = c(3, 5, 20))
+m_time.invested(data = NULL, ma.VALUE = c(3, 5, 20), method = 0)
 }
 \arguments{
 \item{x}{A numeric vector.}

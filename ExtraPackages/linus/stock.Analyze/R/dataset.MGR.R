@@ -30,28 +30,34 @@ dataset.MGR <- function(
 #     header.format <- c("Index","Open","High","Low","Close","Volume","Adjusted") 
 #     names(header.format) <- tolower(header.format)
     env.name <- "dataset.MGR"
-    
-    env.config <- data.frame(
-        data=c( "/home/linus/Project/9.Shared.Data/0_Global/Index/",
-                "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stock.price/",
-                "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/etf.price/"),
-        list=c( "/home/linus/Project/1_R/Analysis.of.trading.strategies/world.wide.broad.index.csv",
-                "/home/linus/Project/1_R/Analysis.of.trading.strategies/all_codes.csv",
-                "/home/linus/Project/1_R/Analysis.of.trading.strategies/all.ETF.code.csv"),
-        remix=c(    "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/03_index/",
-                    "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/",
-                    "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/02_etf/"),
-        ma=c(    "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/02_Index/",
-                "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/01_stock/",
-                "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/03_etf/"),
-        raw=c(  "/home/linus/Project/0_Comprehensive.Research/00_raw.data/",
-                "/home/linus/Project/0_Comprehensive.Research/00_raw.data/",
-                "/home/linus/Project/0_Comprehensive.Research/00_raw.data/"),
-        extension=c("",".TW",".TW"),
-        string.leng=c(0, 4, 5),
-        row.names=c('index', 'stock', 'etf')
-    )
-
+    env.name.file <- '~/env.conf.csv'
+    if(file.exists(env.name.file))
+    {
+       env.config <- read.csv(env.name.file, header=TRUE, sep=',')
+       rownames(env.config) <- env.config[,1]
+       env.config <- env.config[,-c(1)]
+    }else{ #default config
+        env.config <- data.frame(
+            data=c( "/home/linus/Project/9.Shared.Data/0_Global/Index/",
+                    "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stock.price/",
+                    "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/etf.price/"),
+            list=c( "/home/linus/Project/1_R/Analysis.of.trading.strategies/world.wide.broad.index.csv",
+                    "/home/linus/Project/1_R/Analysis.of.trading.strategies/all_codes.csv",
+                    "/home/linus/Project/1_R/Analysis.of.trading.strategies/all.ETF.code.csv"),
+            remix=c(    "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/03_index/",
+                        "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/",
+                        "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/02_etf/"),
+            ma=c(    "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/02_Index/",
+                    "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/01_stock/",
+                    "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/03_etf/"),
+            raw=c(  "/home/linus/Project/0_Comprehensive.Research/00_raw.data/",
+                    "/home/linus/Project/0_Comprehensive.Research/00_raw.data/",
+                    "/home/linus/Project/0_Comprehensive.Research/00_raw.data/"),
+            extension=c("",".TW",".TW"),
+            string.leng=c(0, 4, 5),
+            row.names=c('index', 'stock', 'etf')
+        )
+    }
 
     # main function
     main <- function() 
@@ -67,7 +73,8 @@ dataset.MGR <- function(
                         result <- z.file
                         return(result)
                         },
-            conf =  { return(as.character(data.path(group))) }
+            conf =  { return(as.character(data.path(group))) },
+            all_conf =  { return(env.config) }
         )
     }        
                 

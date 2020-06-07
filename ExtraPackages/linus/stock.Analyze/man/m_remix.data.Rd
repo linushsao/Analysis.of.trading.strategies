@@ -2,7 +2,7 @@
 % Please edit documentation in R/m_remix.data.R
 \name{m_remix.data}
 \alias{m_remix.data}
-\title{A m_check.code Function}
+\title{A m_remix.data Function}
 \usage{
 m_remix.data(data = NULL, mode = NULL)
 }

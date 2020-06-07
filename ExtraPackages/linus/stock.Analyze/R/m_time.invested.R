@@ -7,7 +7,7 @@
 #' @examples
 #' median_function(seq(1:10))
 
-   m_time.invested <- function( data=NULL, ma.VALUE=c(3,5,20) ) 
+   m_time.invested <- function( data=NULL, ma.VALUE=c(3,5,20) ,method=0) 
    {
                 
                 for(ii in 1:length(ma.VALUE)) {
@@ -24,10 +24,12 @@
                         }
                     }
 
+            if(method == 0) #default method
+            {
             stock.ma$average <- apply(stock.ma, 1,function(x) mean(x[c(2,3)]))
             stock.ma$average_1 <- apply(stock.ma, 1,function(x) mean(x[c(1:3)]))
-            result <- merge(data, stock.ma)
-
+            }
+        result <- merge(data, stock.ma)
         return(result)
     }
     

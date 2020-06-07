@@ -2,8 +2,9 @@ rm(list=ls())
 par(mfrow=c(1,1))
 graphics.off() 
 #
-LIBRS <- c('quantmod','xts','TTR','roxygen2','PerformanceAnalytics','forecast','astsa','TSA','tseries','rlist', 'circlize')
+LIBRS <- c('quantmod','xts','TTR','roxygen2','PerformanceAnalytics','forecast','astsa','tseries','rlist', 'circlize')
 sapply(LIBRS,library,character.only=TRUE)
+
 setwd("/home/linus/Project/1_R/Analysis.of.trading.strategies/ExtraPackages/linus/stock.Analyze/")
 library('roxygen2')
 roxygenize()
@@ -196,7 +197,7 @@ if(! is.na(stock.custom[1]))
     tmp.name <- tmp.name[!is.na(tmp.name)]
     sample.stock <- data.frame(code=tmp.code, name=tmp.name)
 }
-title <- paste0(sample.stock$code, sample.stock$name, ' sd :', round(sd(na.omit(t.return$ret[as.character(as.numeric(period)-1)])),4),' transet.years: ',get.research.period)
+title <- paste0(sample.stock$code, ' ',sample.stock$name, ' sd :', round(sd(na.omit(t.return$ret[as.character(as.numeric(period)-1)])),4),' transet.years: ',get.research.period)
 
 x11()
 par(mfrow=c(3,2))

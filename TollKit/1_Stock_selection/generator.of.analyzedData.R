@@ -1,5 +1,4 @@
 rm(list=ls())
-par(mfrow=c(1,1))
 graphics.off() 
 #
 LIBRS <- c('quantmod','stringr','xts','TTR','roxygen2','tseries','rlist','lubridate')
@@ -28,21 +27,22 @@ tranSet.period <-  c(2008:year(Sys.Date()))
 testSet.period <- c(2020)
 price.average.limited <- as.numeric(get.conf(name='price.average.limited'))
 
-env.config <- data.frame(
-    data=c( "/home/linus/Project/9.Shared.Data/0_Global/Index/",
-            "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stock.price/",
-            "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/etf.price/"),
-    list=c( "/home/linus/Project/1_R/Analysis.of.trading.strategies/world.wide.broad.index.csv",
-            "/home/linus/Project/1_R/Analysis.of.trading.strategies/all_codes.csv",
-            "/home/linus/Project/1_R/Analysis.of.trading.strategies/all.ETF.code.csv"),
-    remix=c(    "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/03_index/",
-                "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/",
-                "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/02_etf/"),
-    ma=c(    "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/02_Index/",
-             "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/01_stock/",
-             "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/03_etf/"),
-    row.names=c('index', 'stock', 'etf')
-)
+# env.config <- data.frame(
+#     data=c( "/home/linus/Project/9.Shared.Data/0_Global/Index/",
+#             "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/stock.price/",
+#             "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/etf.price/"),
+#     list=c( "/home/linus/Project/1_R/Analysis.of.trading.strategies/world.wide.broad.index.csv",
+#             "/home/linus/Project/1_R/Analysis.of.trading.strategies/all_codes.csv",
+#             "/home/linus/Project/1_R/Analysis.of.trading.strategies/all.ETF.code.csv"),
+#     remix=c(    "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/03_index/",
+#                 "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/",
+#                 "/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/02_etf/"),
+#     ma=c(    "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/02_Index/",
+#              "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/01_stock/",
+#              "/home/linus/Project/0_Comprehensive.Research/02_Logarithmic.table/03_etf/"),
+#     row.names=c('index', 'stock', 'etf')
+# )
+env.config <- dataset.MGR(request='all_conf')
 
 for( group.id in 1:length(analyze.group.conf))
 {

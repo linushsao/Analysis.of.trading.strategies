@@ -1,61 +1,66 @@
-rm(list=ls())
-graphics.off() 
+    rm(list=ls())
+    graphics.off() 
 
-# load.library
-LIBRS <- c('quantmod','stringr','xts','TTR','roxygen2','rlist','PerformanceAnalytics','tseries', 'stats')
-sapply(LIBRS,library,character.only=TRUE)
+    # load.library
+    LIBRS <- c('quantmod','stringr','xts','TTR','roxygen2','rlist','PerformanceAnalytics','tseries', 'stats')
+    sapply(LIBRS,library,character.only=TRUE)
 
-setwd("/home/linus/Project/1_R/Analysis.of.trading.strategies/ExtraPackages/linus/stock.Analyze/")
-library('roxygen2')
-roxygenize()
-library("stock.Analyze")
+    setwd("/home/linus/Project/1_R/Analysis.of.trading.strategies/ExtraPackages/linus/stock.Analyze/")
+    library('roxygen2')
+    roxygenize()
+    library("stock.Analyze")
 
-#
-research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
-setwd(research.path.of.linus)
+    #
+    research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
+    setwd(research.path.of.linus)
 
-trigger.action.mat <- data.frame(
-    ind=c('blue','blue','blue' ),
-    level=c('green','purple','purple' ),
-    row.names=c('index', 'stock', 'etf')
-)
-auto.down <- TRUE
-file.extension <- ".csv"
-## 
-# stock.custom <- NULL #stock.code
-get.input <- get.users.input() #get basic data of stock/eft/index
+    trigger.action.mat <- data.frame(
+        ind=c('blue','blue','blue' ),
+        level=c('green','purple','purple' ),
+        row.names=c('index', 'stock', 'etf')
+    )
+    auto.down <- TRUE
+    file.extension <- ".csv"
 
-stock.custom <- get.input[1]
-testSet.period <- get.input[2]
-analyze.group <-  get.input[3]
-    
-trigger.action.custom <- c('brown','orange')
-#for index: blue over green
-#for stock: blue over (purple | orange)
-#for etf  : blue over (purple | orange)
-#for Serious global impact(ex. 2020COVID, 2008FinancialCrisis) brown over orange
+    ## 
+    # stock.custom <- NULL #stock.code
+    get.input <- get.users.input() #get basic data of stock/eft/index
 
-data.path <- dataset.MGR(group=c(analyze.group, 'data', request='conf'))
-list.pat <- dataset.MGR(group=c(analyze.group, 'list', request='conf'))
-ma.path <- dataset.MGR(group=c(analyze.group, 'ma', request='conf'))
-data.extension <- dataset.MGR(group=c(analyze.group, 'extension', request='conf'))
+    stock.custom <- get.input[1]
+    testSet.period <- get.input[2]
+    analyze.group <-  get.input[3]
+        
+    trigger.action.custom <- c('brown','orange')
+    #for index: blue over green
+    #for stock: blue over (purple | orange)
+    #for etf  : blue over (purple | orange)
+    #for common: red over orange
+    #for Serious global impact(ex. 2020COVID, 2008FinancialCrisis) brown over orange
 
-get.research.years <- 5
-#
-price.limits.value <- as.numeric(get.conf(name='price.average.limited'))
-data.length <- 150
-data.end <-as.character(as.Date(Sys.time()))
-data.start <- as.character(as.Date(Sys.time()) - data.length)
-testSet.period <- ifelse(is.null(testSet.period), paste(data.start, data.end, sep='::'), testSet.period)
-code.list <- paste(research.path.of.linus, analyze.group, '.RAW.', as.numeric(testSet.period)-1, file.extension, sep='')
+    data.path <- dataset.MGR(group=c(analyze.group, 'data', request='conf'))
+    list.pat <- dataset.MGR(group=c(analyze.group, 'list', request='conf'))
+    ma.path <- dataset.MGR(group=c(analyze.group, 'ma', request='conf'))
+    data.extension <- dataset.MGR(group=c(analyze.group, 'extension', request='conf'))
+    get.research.years <- 5
 
-stock.code.list <- read.csv(code.list, header=TRUE, sep=",")
-stock.code <- gsub('.TW','',as.character(stock.code.list[,2]))
-stock.cname <- as.character(stock.code.list[,3])
-stock.group <-  as.character(stock.code.list[,7])
+    #
+    price.limits.value <- as.numeric(get.conf(name='price.average.limited'))
+    data.length <- 150
+    data.end <-as.character(as.Date(Sys.time()))
+    data.start <- as.character(as.Date(Sys.time()) - data.length)
+    testSet.period <- ifelse(is.null(testSet.period), paste(data.start, data.end, sep='::'), testSet.period)
+    code.list <- paste(research.path.of.linus, analyze.group, '.RAW.', as.numeric(testSet.period)-1, file.extension, sep='')
 
-stock.type <- ifelse(analyze.group != 'index', as.character(stock.code.list[,6]),NA)
-##
+    stock.code.list <- read.csv(code.list, header=TRUE, sep=",")
+#     stock.code <- gsub('.TW','',as.character(stock.code.list[,2]))
+#     stock.cname <- as.character(stock.code.list[,3])
+#     stock.group <-  as.character(stock.code.list[,7])
+    stock.code <- ifelse(analyze.group != 'index', gsub('.TW','',as.character(stock.code.list$STOCK_CODE)), as.character(stock.code.list$STOCK_CODE))
+    stock.cname <- as.character(stock.code.list$STOCK_NAME)
+    stock.group <-  as.character(stock.code.list$GROUP)
+    stock.type <- as.character(stock.code.list$TYPE)
+
+    ##
 
     while(TRUE) {
         
@@ -70,7 +75,7 @@ stock.type <- ifelse(analyze.group != 'index', as.character(stock.code.list[,6])
                 check.stock.code <- stock.code[stock.id]
                 }
             } else {
-            check.stock.code <- gsub('.TW', '', stock.custom)
+            check.stock.code <- ifelse(analyze.group != 'index', gsub('.TW', '', stock.custom), stock.custom)
             stock.id <- match(check.stock.code, stock.code)
             }
         target.stock <- m_paste(c(data.path,  check.stock.code, data.extension, file.extension), op="")
@@ -208,6 +213,24 @@ stock.type <- ifelse(analyze.group != 'index', as.character(stock.code.list[,6])
             trigger.mat['deep pink','max'], trigger.mat['deep pink','min'] ),
             main=paste('Graph 3B ', main.title),col=c('brown','chartreuse4', 'black',m_dupli.vector(rownames(trigger.mat))))
         plot(merge(stock.ma$shrink.ret, 0, 3, -3), col=c('darkslategrey', 'black', 'darkslategray3', 'darkslategray3'), main=paste('Graph 3C ', main.title))
+
+        x11()
+        par(mfrow=c(3,1))    
+        plot(trade.signal.xts$close, main=paste('Graph 2A ', main.title))
+        cum.ret <- trade.signal.xts$cum.ret
+        title <- m_paste(c('max: ',c(round(max(cum.ret),3),' / average: ', round(mean(cum.ret),3)), op=""))
+        plot(merge(stock.ma$tension, stock.ma$shrink, 0,
+            trigger.mat['green','max'], trigger.mat['green','min'], 
+            trigger.mat['purple','max'], trigger.mat['purple','min'], 
+            trigger.mat['orange','max'], trigger.mat['orange','min'], 
+            trigger.mat['deep pink','max'], trigger.mat['deep pink','min'] ),
+            main=paste('Graph 3B ', main.title),col=c('brown','chartreuse4', 'black',m_dupli.vector(rownames(trigger.mat))))
+        plot(merge(stock.ma[,-c(1,7:10)], 
+            trigger.mat['green','max'], trigger.mat['green','min'], 
+            trigger.mat['purple','max'], trigger.mat['purple','min'], 
+            trigger.mat['orange','max'], trigger.mat['orange','min'], 
+            trigger.mat['deep pink','max'], trigger.mat['deep pink','min'] ),
+            lwd=c(rep(1,5), rep(1,4)) , col=c(indicator.color, m_dupli.vector(rownames(trigger.mat))), main=paste('Graph 2C ', main.title ))
 
        x11()
         par(mfrow=c(1,1))

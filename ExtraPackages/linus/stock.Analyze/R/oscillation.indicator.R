@@ -28,7 +28,6 @@
             } else {
                 stock.ma <- m_time.invested( data= (Clprs) ) 
                 stock.ma <- stock.ma[complete.cases(stock.ma)]
-#                 color.name <- c('Close','gray','gray.1','brown','blue','red')
                 names(stock.ma) <- color.name
             }
             

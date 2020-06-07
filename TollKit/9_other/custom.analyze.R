@@ -4,7 +4,7 @@ graphics.off()
 #
 LIBRS <- c('quantmod','stringr','xts','TTR','roxygen2','tseries','rlist','lubridate', 'ids')
 sapply(LIBRS,library,character.only=TRUE)
-
+# sapply(LIBRS,install.packages,character.only=TRUE)
 setwd("/home/linus/Project/1_R/Analysis.of.trading.strategies/ExtraPackages/linus/stock.Analyze/")
 library('roxygen2')
 roxygenize()
@@ -12,14 +12,16 @@ library("stock.Analyze")
 research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 setwd(research.path.of.linus)
 
-filename='/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/remix.stock.2020_2020-06-02.csv'
+# modify column
+filename=paste0('/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/remix.stock.2020_', as.Date(Sys.time()),'.csv')
+filename_remix <- paste0(gsub('.csv', '', filename), '_.csv')
 data.raw <- read.csv(filename, header=TRUE, sep=',')[,-c(1)]
 for(id in 2017:2020)
 {
 year <- paste0('RATE.', id)
 data.raw <- m_remix.data(data=data.raw, mode=c('add.col','sort',year))
 }
-write.csv(data.raw, file='test.csv')
+write.csv(data.raw, file=filename_remix)
 # 
 # list.path <- '/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/remix.stock.2020_2020-05-25.csv'
 # stock.list <- read.csv(list.path, header=T, sep=',')[,-c(1)]
