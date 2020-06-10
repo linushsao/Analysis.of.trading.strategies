@@ -5,8 +5,11 @@ rm(list=ls())
 # sapply(LIBRS,library,character.only=TRUE)
 
 #custom library
-source('/home/linus/Project/1_R/Analysis.of.trading.strategies/TollKit/custom.pkg.R')
-source(m_env(name="custom.pkg.path", mode="r"))
+library('roxygen2')
+setwd("/home/linus/Project/1_R/Analysis.of.trading.strategies/ExtraPackages/linus/stock.Analyze/")
+library('roxygen2')
+roxygenize()
+library("stock.Analyze")
 
 #
 research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
@@ -20,7 +23,7 @@ data.url.tail <- c( FISS="" )
 data.fake.header <- c( FISS="" )
 
 # crawl.check <- ".crawl.check.csv"
-extra.holiday.date <- c(paste("2020-01-",as.character(c(21:29)),sep=""),"2020-10-10","2018-12-31","2019-01-01","2018-08-31") #Chinese New Year
+# extra.holiday.date <- c(paste("2020-01-",as.character(c(21:29)),sep=""),"2020-10-10","2018-12-31","2019-01-01","2018-08-31") #Chinese New Year
 
 back.remain <- as.numeric(m_env(name="crawl.date.back.remain", mode="r"))
 stop.date <- c( FISS=(as.Date(Sys.Date()) - back.remain) )
@@ -44,7 +47,7 @@ repeat {
                 #check ignore if holiday <<
                 if(start.date <= stop.date) break #till stop date
                 
-                if( as.character(start.date) %in% extra.holiday.date ) { next } #ignore holiday
+#                 if( as.character(start.date) %in% extra.holiday.date ) { next } #ignore holiday
                 
                     if(!(week.check %in% c("Saturday","Sunday" ))){
 

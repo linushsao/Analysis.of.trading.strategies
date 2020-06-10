@@ -12,8 +12,9 @@
     research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
     setwd(research.path.of.linus)
 
+    if.only.basic <- as.logical(get.users.input(prompt='Pls Enter If only basic report(T/F)', index='if.only.basic'))
     # modify column & export
-    remix.date <- get.users.input(prompt='Pls Enter Remix.date(y-m-d), or (s)ys.time', index='remix.date')
+    remix.date <- get.users.input(prompt='Pls Enter Remix.date(y-m-d), or using (s)ys.time', index='remix.date')
     if(remix.date == 's') remix.date <- as.Date(Sys.time())
     
     filename=paste0('/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/remix.stock.2020_', remix.date,'.csv')
@@ -56,109 +57,106 @@
     
     write.csv(data.raw, file=filename_remix)
     
-    #Compare with UP/DN 100 Rank of YAHOO
-    page2csv <- function(page.url, page.encoding="UTF-8", export.file=NULL, css.selector='table')  {
-        page.source <- read_html(page.url,encoding=page.encoding)
-        version.block <- html_nodes(page.source, css.selector)
-#         content <- html_text(version.block)
-#         result <- unique(content)
-#         if(! is.null(export.file)) write.csv(result, file=export.file)
-        return(version.block)
-    }
-    
-    page.url <- c('https://tw.stock.yahoo.com/d/i/rank.php?t=up&e=TAI&n=100',
-                  'https://tw.stock.yahoo.com/d/i/rank.php?t=down&e=TAI&n=100',
-                  'https://tw.stock.yahoo.com/d/i/fgbuy_tse100.html',
-                  'https://tw.stock.yahoo.com/d/i/fgsell_tse100.html')
-    names(page.url) <- c('UP100', 'DN100', 'f.i.OverBought', 'f.i.OverSold')
-    for(name.id in names(page.url))
+    if(!if.only.basic)
     {
-#         name.id <- 'f.i.OverBought' #for test
-        out.csv.raw <- page2csv(page.url=page.url[name.id], page.encoding='BIG5')
-
-        out.csv <- out.csv.raw %>%
-            .[3:4] %>%
-            html_table(fill = TRUE)
-        
-        if( name.id %in% c('UP100', 'DN100')) 
-        {
-            data.grap <- c(1,9,1)
-            out.csv <- out.csv[[data.grap[1]]][-c(1:2),-c(1)]
-        }else{
-            data.grap <- c(2,6,2)
-            out.csv <- out.csv[[data.grap[1]]]
+        #Compare with UP/DN 100 Rank of YAHOO
+        page2csv <- function(page.url, page.encoding="UTF-8", export.file=NULL, css.selector='table')  {
+            page.source <- read_html(page.url,encoding=page.encoding)
+            version.block <- html_nodes(page.source, css.selector)
+            return(version.block)
         }
-#         out.csv <- out.csv[[1]][-c(1:2),-c(1)]
-#         out.csv <- out.csv[,c(1:9)]
-
-        out.csv <- out.csv[,c(data.grap[3]:data.grap[2])]
-        names(out.csv) <- out.csv[1,]
-        out.csv <- out.csv[-1,]
-        rownames(out.csv) <- NULL
         
-        if(data.grap[1]==1) 
+        page.url <- c('https://tw.stock.yahoo.com/d/i/rank.php?t=up&e=TAI&n=100',
+                    'https://tw.stock.yahoo.com/d/i/rank.php?t=down&e=TAI&n=100',
+                    'https://tw.stock.yahoo.com/d/i/fgbuy_tse100.html',
+                    'https://tw.stock.yahoo.com/d/i/fgsell_tse100.html')
+        names(page.url) <- c('UP100', 'DN100', 'f.i.OverBought', 'f.i.OverSold')
+        for(name.id in names(page.url))
         {
-            tmp.CodeName <- unlist(strsplit(out.csv[,1], ' '))
-            leng.a <- length(tmp.CodeName) / 2
-            mask <- rep(c(0,1), leng.a)
-            tmp.df <- data.frame(STOCK_DATA=tmp.CodeName, MASK=mask)
-            tmp.STOCK_CODE <- tmp.df[tmp.df$MASK==0,]
-            tmp.STOCK_NAME <- tmp.df[tmp.df$MASK==1,]
-            DnUp.check.df <- data.frame(STOCK_CODE=paste0(tmp.STOCK_CODE[,1], '.TW'), STOCK_NAME=tmp.STOCK_NAME[,1])
-            DnUp.check.df[, paste0('rank_', name.id)] <- index(DnUp.check.df)
-        }else{
-        
-            join.vector <- function(v)
+    #         name.id <- 'f.i.OverBought' #for test
+            out.csv.raw <- page2csv(page.url=page.url[name.id], page.encoding='BIG5')
+
+            out.csv <- out.csv.raw %>%
+                .[3:4] %>%
+                html_table(fill = TRUE)
+            
+            if( name.id %in% c('UP100', 'DN100')) 
             {
-                tmp.char <- ''
-                for(i in 1:length(v)) tmp.char <- paste0(tmp.char,v[i] )
-                return(tmp.char)
+                data.grap <- c(1,9,1)
+                out.csv <- out.csv[[data.grap[1]]][-c(1:2),-c(1)]
+            }else{
+                data.grap <- c(2,6,2)
+                out.csv <- out.csv[[data.grap[1]]]
             }
-            vec <- data.frame(v.num=c(0:9,rep(NA,16)),
-                              v.eng=c(LETTERS[seq( from = 1, to = 26 )]) )
-            tmp.code <- c()
-            for(list.row in 1:nrow(out.csv)) 
+
+            out.csv <- out.csv[,c(data.grap[3]:data.grap[2])]
+            names(out.csv) <- out.csv[1,]
+            out.csv <- out.csv[-1,]
+            rownames(out.csv) <- NULL
+            
+            if(data.grap[1]==1) 
             {
-                target <- out.csv[list.row, 1]
-                tmp.str <- c()
-                flag.jump <- FALSE
-                for(char.id in 1:nchar(target))
+                tmp.CodeName <- unlist(strsplit(out.csv[,1], ' '))
+                leng.a <- length(tmp.CodeName) / 2
+                mask <- rep(c(0,1), leng.a)
+                tmp.df <- data.frame(STOCK_DATA=tmp.CodeName, MASK=mask)
+                tmp.STOCK_CODE <- tmp.df[tmp.df$MASK==0,]
+                tmp.STOCK_NAME <- tmp.df[tmp.df$MASK==1,]
+                DnUp.check.df <- data.frame(STOCK_CODE=paste0(tmp.STOCK_CODE[,1], '.TW'), STOCK_NAME=tmp.STOCK_NAME[,1])
+                DnUp.check.df[, paste0('rank_', name.id)] <- index(DnUp.check.df)
+            }else{
+            
+                join.vector <- function(v)
                 {
-                    flag.match <- FALSE
-                    for(col.id in 1:ncol(vec))
+                    tmp.char <- ''
+                    for(i in 1:length(v)) tmp.char <- paste0(tmp.char,v[i] )
+                    return(tmp.char)
+                }
+                vec <- data.frame(v.num=c(0:9,rep(NA,16)),
+                                v.eng=c(LETTERS[seq( from = 1, to = 26 )]) )
+                tmp.code <- c()
+                for(list.row in 1:nrow(out.csv)) 
+                {
+                    target <- out.csv[list.row, 1]
+                    tmp.str <- c()
+                    flag.jump <- FALSE
+                    for(char.id in 1:nchar(target))
                     {
-                        for(row.id in 1:nrow(vec))
+                        flag.match <- FALSE
+                        for(col.id in 1:ncol(vec))
                         {
-                            valu <- vec[row.id, col.id]
-                            if(is.na(valu)) next            
-#                             print(c(list.row, target, valu, substr(target, char.id, char.id)))
-                            if(valu == substr(target, char.id, char.id) && !flag.jump) 
+                            for(row.id in 1:nrow(vec))
                             {
-                                tmp.str <- c(tmp.str, valu)
-                                flag.match <- TRUE
+                                valu <- vec[row.id, col.id]
+                                if(is.na(valu)) next            
+    #                             print(c(list.row, target, valu, substr(target, char.id, char.id)))
+                                if(valu == substr(target, char.id, char.id) && !flag.jump) 
+                                {
+                                    tmp.str <- c(tmp.str, valu)
+                                    flag.match <- TRUE
+                                }
                             }
                         }
+                        if(!flag.match) flag.jump <- TRUE
                     }
-                    if(!flag.match) flag.jump <- TRUE
+                    out.csv[list.row, 1] <- gsub(join.vector(tmp.str), '', target)
+                    tmp.code <- c(tmp.code, join.vector(tmp.str))
                 }
-                out.csv[list.row, 1] <- gsub(join.vector(tmp.str), '', target)
-                tmp.code <- c(tmp.code, join.vector(tmp.str))
+                DnUp.check.df <- data.frame(STOCK_CODE=paste0(tmp.code, '.TW'), STOCK_NAME=out.csv[,1])
+                DnUp.check.df[, paste0('rank_', name.id)] <- index(DnUp.check.df)
             }
-            DnUp.check.df <- data.frame(STOCK_CODE=paste0(tmp.code, '.TW'), STOCK_NAME=out.csv[,1])
-            DnUp.check.df[, paste0('rank_', name.id)] <- index(DnUp.check.df)
+            
+            data.raw.tmp <- data.raw[,c('STOCK_CODE', 'STOCK_NAME', 'LAST_CLOSE.average', 'oscillate.brown', 'oscillate.blue', 'oscillate.red', 'oscillate.tenstion', 'oscillate.shrink')]
+            data.raw.DnUp.check <- merge(data.raw.tmp, DnUp.check.df, by='STOCK_CODE', all.y=TRUE)
+            data.raw.DnUp.check$STOCK_NAME.x <- data.raw.DnUp.check$STOCK_NAME.y
+            data.raw.DnUp.check$STOCK_NAME.y <- NULL
+            
+            leng.col <- ncol(data.raw.DnUp.check)
+            remix.col <- c(leng.col, (1:(leng.col-1)))
+            data.raw.DnUp.check <- data.raw.DnUp.check[, remix.col]
+            
+            filename_remix <- paste0(gsub('.csv', '', filename), '_', name.id,'.csv')
+            write.csv(data.raw.DnUp.check, file=filename_remix)
         }
-        
-        data.raw.tmp <- data.raw[,c('STOCK_CODE', 'STOCK_NAME', 'LAST_CLOSE.average', 'oscillate.brown', 'oscillate.blue', 'oscillate.red', 'oscillate.tenstion', 'oscillate.shrink')]
-        data.raw.DnUp.check <- merge(data.raw.tmp, DnUp.check.df, by='STOCK_CODE', all.y=TRUE)
-        data.raw.DnUp.check$STOCK_NAME.x <- data.raw.DnUp.check$STOCK_NAME.y
-        data.raw.DnUp.check$STOCK_NAME.y <- NULL
-        
-        leng.col <- ncol(data.raw.DnUp.check)
-        remix.col <- c(leng.col, (1:(leng.col-1)))
-        data.raw.DnUp.check <- data.raw.DnUp.check[, remix.col]
-        
-        filename_remix <- paste0(gsub('.csv', '', filename), '_', name.id,'.csv')
-        write.csv(data.raw.DnUp.check, file=filename_remix)
     }
-
 

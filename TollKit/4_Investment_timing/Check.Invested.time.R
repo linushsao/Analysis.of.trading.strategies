@@ -30,7 +30,7 @@
     testSet.period <- get.input[2]
     analyze.group <-  get.input[3]
         
-    trigger.action.custom <- c('brown','orange')
+    trigger.action.custom <- c('blue','purple')
     #for index: blue over green
     #for stock: blue over (purple | orange)
     #for etf  : blue over (purple | orange)
