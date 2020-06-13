@@ -37,6 +37,12 @@
             csv.file <- csv.file[-1, ]
             rownames(csv.file) <- NULL
             csv.file$STOCK_CODE <- gsub('=', '', as.character(csv.file$STOCK_CODE))
+            #transfer numeric
+            for(col.id in 3:ncol(csv.file))
+            {
+                for(row.id in 1:nrow(csv.file)) csv.file[row.id , col.id] <- gsub(',', '', csv.file[row.id , col.id], fixed=TRUE)
+            }
+            for(col.id in 3:ncol(csv.file)) csv.file[, col.id] <- as.numeric(csv.file[, col.id])
             
             for (row.id in 1:nrow(csv.file))
             {
@@ -61,7 +67,6 @@
         if(mentain.date.start == mentain.date.end)  break
         mentain.date.start <- mentain.date.start + 1
     }
-    
-    
+        
     
     

@@ -12,19 +12,24 @@
     research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
     setwd(research.path.of.linus)
 
-    if.only.basic <- as.logical(get.users.input(prompt='Pls Enter If only basic report(T/F)', index='if.only.basic'))
     # modify column & export
     remix.date <- get.users.input(prompt='Pls Enter Remix.date(y-m-d), or using (s)ys.time', index='remix.date')
+    list.updn <- as.logical(get.users.input(prompt='Pls Enter If UpDn_List report(T/F)', index='list.updn'))
+    list.fi.summary <- as.logical(get.users.input(prompt='Pls Enter If fi.summary report(T/F)', index='list.fi.summary'))    
+
     if(remix.date == 's') remix.date <- as.Date(Sys.time())
-    
+    stock.data.path <- dataset.MGR()
+    fi.dest.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/3_stock/'
+    fi.dest.mix.path <- '/home/linus/Project/0_Comprehensive.Research/04_price.mixed/'
     filename=paste0('/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/remix.stock.2020_', remix.date,'.csv')
     filename_remix <- paste0(gsub('.csv', '', filename), '_.csv')
     data.raw <- read.csv(filename, header=TRUE, sep=',')[,-c(1)]
     period <- c(2017, 2020)
+    
     for(id in period[1]:period[2])
     {
-    year <- paste0('RATE.', id)
-    data.raw <- m_remix.data(data=data.raw, mode=c('add.col','sort',year))
+        year <- paste0('RATE.', id)
+        data.raw <- m_remix.data(data=data.raw, mode=c('add.col','sort',year))
     }
 #     write.csv(data.raw, file=filename_remix)
 
@@ -57,7 +62,7 @@
     
     write.csv(data.raw, file=filename_remix)
     
-    if(!if.only.basic)
+    if(list.updn)
     {
         #Compare with UP/DN 100 Rank of YAHOO
         page2csv <- function(page.url, page.encoding="UTF-8", export.file=NULL, css.selector='table')  {
@@ -160,3 +165,47 @@
         }
     }
 
+    if(list.fi.summary)
+    {
+        file.list <- list.files(path=fi.dest.path)
+        file.list <- file.list[substr(file.list,1,1) != 0]
+        
+        na.filter <- function(x) {return(x[complete.cases(x),])}
+        for(list.id in file.list)
+        {
+            fi.filename <- paste0(fi.dest.path, list.id)
+            fi.mix.filename <- paste0(fi.dest.mix.path, list.id)
+            stock.filename <- paste0(stock.data.path, list.id)
+            if(!file.exists(stock.filename)) next
+            fi.data <- read.csv(fi.filename, header=T, sep=',')[,-c(2:3)]
+            stock.data <- read.csv(stock.filename, header=T, sep=',')
+            col.name <- gsub('X.', '', gsub(gsub('.csv', '', list.id) , '', names(stock.data)))
+            names(stock.data) <- col.name
+            Clprs <- na.filter(stock.data[,c(col.name[1], col.name[5])])
+            Clprs$Ret <- ROC(Clprs[,2])
+            fi.mix <- merge(Clprs, fi.data, by='Index')
+            write.csv(fi.mix, file=fi.mix.filename)
+        }
+    }
+    
+    #
+# 'data.frame':	586 obs. of  12 variables:
+#  $ Index      : chr  "2018-01-02" "2018-01-03" "2018-01-04" "2018-01-05" ...
+#  $ Close      : num  102 112 117 116 110 ...
+#  $ Ret        : num  -0.0339 0.09397 0.04815 -0.00858 -0.05311 ...
+#  $ YL0_BUYIN  : chr  "1,634,475" "2,214,000" "1,336,000" "697,000" ...
+#  $ YL0_SELLOUT: chr  "608,735" "286,000" "2,049,000" "1,290,926" ...
+#  $ YL0_DIFF   : chr  "1,025,740" "1,928,000" "-713,000" "-593,926" ...
+#  $ YJ_BUYIN   : int  0 0 0 0 0 0 0 0 0 0 ...
+#  $ YJ_SELLOUT : int  0 0 0 0 0 0 0 0 0 0 ...
+#  $ YJ_DIFF    : int  0 0 0 0 0 0 0 0 0 0 ...
+#  $ YL_BUYIN   : chr  "1,634,475" "2,214,000" "1,336,000" "697,000" ...
+#  $ YL_SELLOUT : chr  "608,735" "286,000" "2,049,000" "1,290,926" ...
+#  $ YL_DIFF    : chr  "1,025,740" "1,928,000" "-713,000" "-593,926" ...
+ 
+    stop()
+    stock.code <- '2492.TW.csv'
+    select.col <- c('Ret', 'YL0_DIFF', 'YJ_DIFF', 'YL_DIFF')
+    filename <- paste0(fi.dest.mix.path, stock.code)
+    a <- read.csv(filename, header=T, sep=',')
+    cor(as.numeric(a[,select.col]))
