@@ -194,7 +194,7 @@ if(! is.na(stock.custom[1]))
     stock.list$STOCK_CODE <- sapply(as.character(stock.list$STOCK_CODE) , function(v) m_check.code(v, num=string.leng))
     tmp.code <- ifelse((analyze.group != 'index'), gsub('.TW', '', stock.code.custom), stock.code.custom)
     tmp.name <- apply(stock.list, 1, function(v) return(ifelse(v[1]==tmp.code, v[2], NA)))
-    tmp.name <- tmp.name[!is.na(tmp.name)]
+    tmp.name <- ifelse(length(tmp.name[!is.na(tmp.name)]) == 0, tmp.code, tmp.name[!is.na(tmp.name)])
     sample.stock <- data.frame(code=tmp.code, name=tmp.name)
 }
 title <- paste0(sample.stock$code, ' ',sample.stock$name, ' sd :', round(sd(na.omit(t.return$ret[as.character(as.numeric(period)-1)])),4),' transet.years: ',get.research.period)

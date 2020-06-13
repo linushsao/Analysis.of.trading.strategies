@@ -48,8 +48,9 @@
     data.length <- 150
     data.end <-as.character(as.Date(Sys.time()))
     data.start <- as.character(as.Date(Sys.time()) - data.length)
-    testSet.period <- ifelse(is.null(testSet.period), paste(data.start, data.end, sep='::'), testSet.period)
-    code.list <- paste(research.path.of.linus, analyze.group, '.RAW.', as.numeric(testSet.period)-1, file.extension, sep='')
+    if(is.null(testSet.period)) testSet.period <- paste(data.start, data.end, sep='::')
+    get.year <- as.numeric(substr(testSet.period, 1, 4))
+    code.list <- paste(research.path.of.linus, analyze.group, '.RAW.', as.numeric(get.year)-1, file.extension, sep='')
 
     stock.code.list <- read.csv(code.list, header=TRUE, sep=",")
 #     stock.code <- gsub('.TW','',as.character(stock.code.list[,2]))
