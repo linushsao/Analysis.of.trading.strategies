@@ -18,7 +18,7 @@
     list.fi.summary <- as.logical(get.users.input(prompt='Pls Enter If fi.summary report(T/F)', index='list.fi.summary'))    
 
     if(remix.date == 's') remix.date <- as.Date(Sys.time())
-    stock.data.path <- dataset.MGR()
+#     stock.data.path <- dataset.MGR()
     fi.dest.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/3_stock/'
     fi.dest.mix.path <- '/home/linus/Project/0_Comprehensive.Research/04_price.mixed/'
     filename=paste0('/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/remix.stock.2020_', remix.date,'.csv')
@@ -165,27 +165,32 @@
         }
     }
 
+
     if(list.fi.summary)
     {
         file.list <- list.files(path=fi.dest.path)
-        file.list <- file.list[substr(file.list,1,1) != 0]
+#         file.list <- file.list[substr(file.list,1,1) != 0]
         
-        na.filter <- function(x) {return(x[complete.cases(x),])}
-        for(list.id in file.list)
+#         na.filter <- function(x) {return(x[complete.cases(x),])}
+        for(list.id in 1:length(file.list))
         {
-            fi.filename <- paste0(fi.dest.path, list.id)
-            fi.mix.filename <- paste0(fi.dest.mix.path, list.id)
-            stock.filename <- paste0(stock.data.path, list.id)
+            filename <- file.list[list.id]
+            dest.data.path <- ifelse((substr(file.list[list.id],1,1) != '0'), dataset.MGR(group=c('stock', 'data'), request='conf'), dataset.MGR(group=c('etf', 'data'), request='conf'))
+            fi.filename <- paste0(fi.dest.path, filename)
+            fi.mix.filename <- paste0(fi.dest.mix.path, filename)
+            stock.filename <- paste0(dest.data.path, filename)
             if(!file.exists(stock.filename)) next
             m_msg(info=paste0('_Processing file ', fi.filename))
             fi.data <- read.csv(fi.filename, header=T, sep=',')[,-c(2:3)]
             stock.data <- read.csv(stock.filename, header=T, sep=',')
-            col.name <- gsub('X.', '', gsub(gsub('.csv', '', list.id) , '', names(stock.data)))
+            col.name <- gsub('X.', '', gsub(gsub('.csv', '', filename) , '', names(stock.data)))
             names(stock.data) <- col.name
             Clprs <- na.filter(stock.data[,c(col.name[1], col.name[5])])
-            Clprs$Ret <- ROC(Clprs[,2])
+            Clprs <- replace.colname(Clprs, 'Date', 'Index')
+            Clprs$Ret <- ROC(as.numeric(Clprs[,2]))
             fi.mix <- merge(Clprs, fi.data, by='Index')
             write.csv(fi.mix, file=fi.mix.filename)
+            
         }
     }
     
