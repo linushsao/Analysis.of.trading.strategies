@@ -41,7 +41,7 @@
     list.pat <- dataset.MGR(group=c(analyze.group, 'list', request='conf'))
     ma.path <- dataset.MGR(group=c(analyze.group, 'ma', request='conf'))
     data.extension <- dataset.MGR(group=c(analyze.group, 'extension', request='conf'))
-    get.research.years <- 5
+    get.research.years <- as.numeric(get.conf(name='get.research.years', default.conf=5))
 
     #
     price.limits.value <- as.numeric(get.conf(name='price.average.limited'))

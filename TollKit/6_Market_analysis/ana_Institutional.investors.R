@@ -28,7 +28,7 @@
     sel.xts$cum.ret <- cumprod(1 + sel.xts$Ret)
     sel.xts$cum.yldiff <- cumsum(sel.xts$YL_DIFF)
 
-    ma.VALUE <- c(3,5,10,20)
+    ma.VALUE <- c(3,10,20)
     select.col.ma <- c()
     for(ma.id in 1:length(ma.VALUE))
     {
@@ -43,13 +43,14 @@
     ma <- sel.xts$Close
     length.col.ma <- length(select.col.ma)
     ma$shrink <- xts(apply(sel.xts[, select.col.ma], 1, sd), order.by=(index(sel.xts)))
-    ma$tension <- sel.xts[, select.col.ma[length.col.ma]] - sel.xts[, select.col.ma[1]]
+    ma$momentum <- sel.xts[, select.col.ma[1]] - sel.xts[, select.col.ma[length.col.ma]]
     ma <- ma[complete.cases(ma), ]
 
-    #filrer
     sel.xts$SUM.YL_DIFF <- cumsum(sel.xts$YL_DIFF)
-    sel.xts <- sel.xts[testSet.period]
     
+    #filrer
+    sel.xts <- sel.xts[testSet.period]
+    ma <- ma[testSet.period]
     stock.list <- data.frame( dataset.MGR(group=c(analyze.group,'list'), request='info') )
     list.id <- match(gsub('.TW.csv', '', stock.code), stock.list$STOCK_CODE)
     
@@ -60,9 +61,9 @@
 #     plot(sel.xts$Close)
     plot(sel.xts$Close, main=title.s)
     plot(sel.xts$cum.ret, main=title.s)
-    barplot(sel.xts$SUM.YL_DIFF)
-    barplot(sel.xts$YL_DIFF)
-    plot(sel.xts[,select.col.ma], col=c('red', 'orange', 'blue', 'green'))
-    plot(merge(ma[,c(2,3)], 0)[testSet.period], col=c('green', 'brown', 'darkgray'))
+    barplot(sel.xts$SUM.YL_DIFF, main='Momentum of Bought & Sold')
+    barplot(sel.xts$YL_DIFF, main='Daily Bought & Sold')
+    plot(sel.xts[,select.col.ma], col=c('red', 'orange', 'blue', 'green'), main='Bought/Sold stocks of F.I.')
+    plot(merge(ma[,c(2,3)], 0), col=c('green', 'brown', 'darkgray'), main='trent of Momentum & Shrink')
     
     

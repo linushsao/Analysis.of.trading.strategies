@@ -13,6 +13,8 @@
     research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
     setwd(research.path.of.linus)
 
+    get.research.years <- as.numeric(get.conf(name='get.research.years', default.conf=5))
+    days.of.year <- 250
     #
     #(range.num, choice.num(s)):
     #range.num: 0                -> random choice
@@ -54,9 +56,11 @@
             }
         
     }
-    
+
+    tranSet.period <- as.character(get.users.input(prompt='Pls Enter End.Date of tranSet.period', index='tranSet.period'))
     testSet.period <- as.character(get.users.input(prompt='Pls Enter testSet.period', index='testSet.period'))
-    tranSet.period <- as.character(get.users.input(prompt='Pls Enter tranSet.period', index='tranSet.period'))
+    
+    tranSet.period <- paste0(( as.Date(tranSet.period) -  get.research.years*days.of.year ), '::', tranSet.period)
     #data  preProcessing
 #     selected.listname.path <- 'remix.stock.2020-05-23.csv'
 
