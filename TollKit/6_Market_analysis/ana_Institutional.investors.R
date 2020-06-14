@@ -41,14 +41,19 @@
     }
     
     ma <- sel.xts$Close
+    length.col.ma <- length(select.col.ma)
     ma$shrink <- xts(apply(sel.xts[, select.col.ma], 1, sd), order.by=(index(sel.xts)))
-    ma$tension <- sel.xts[, select.col.ma[4]] - sel.xts[, select.col.ma[1]]
+    ma$tension <- sel.xts[, select.col.ma[length.col.ma]] - sel.xts[, select.col.ma[1]]
     ma <- ma[complete.cases(ma), ]
+
     #filrer
     sel.xts$SUM.YL_DIFF <- cumsum(sel.xts$YL_DIFF)
     sel.xts <- sel.xts[testSet.period]
     
-    title.s <- stock.code
+    stock.list <- data.frame( dataset.MGR(group=c(analyze.group,'list'), request='info') )
+    list.id <- match(gsub('.TW.csv', '', stock.code), stock.list$STOCK_CODE)
+    
+    title.s <- paste0(stock.list$STOCK_CODE[list.id], ' ', stock.list$STOCK_NAME[list.id])
     #virtual
     graphics.off() 
     par(mfrow=c(3,2))
@@ -58,4 +63,6 @@
     barplot(sel.xts$SUM.YL_DIFF)
     barplot(sel.xts$YL_DIFF)
     plot(sel.xts[,select.col.ma], col=c('red', 'orange', 'blue', 'green'))
-    plot(merge(ma[,c(2,3)], 0), col=c('green', 'brown', 'darkgray'))
+    plot(merge(ma[,c(2,3)], 0)[testSet.period], col=c('green', 'brown', 'darkgray'))
+    
+    
