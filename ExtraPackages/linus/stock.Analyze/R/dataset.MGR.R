@@ -94,7 +94,11 @@ dataset.MGR <- function(
                     if(! is.null(dataset.name) )
                     {
                         file_name_csv <-  as.character(paste0(data.path(group), dataset.name, file.extension))
-                        if(!file.exists(file_name_csv) || force.update) write.zoo(getSymbols(dataset.name, auto.assign=FALSE), file=file_name_csv, sep = ",")
+                            if(!file.exists(file_name_csv) || force.update) 
+                            {
+                                tmp.data <- getSymbols(dataset.name, auto.assign=FALSE)
+                                write.zoo(tmp.data, file=file_name_csv, sep = ",")
+                            }
                         }else{
                         file_name_csv <-  as.character(data.path(group))
                     }

@@ -14,12 +14,14 @@ setwd(research.path.of.linus)
 
 twse.df <- data.frame(
     data.dir=c( "/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/1_raw.file/" ,
-                     '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/4_raw.file.day/'),
+                     '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/4_raw.file.day/',
+                     '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/Margin.Trading_Short.Selling/1_raw.file/'),
     data.url.head=c( "https://www.twse.com.tw/fund/TWT38U?response=csv&date=",
-                          'https://www.twse.com.tw/fund/BFI82U?response=csv&dayDate=' ),
-    data.url.tail=c( "", '&type=day'),
-    data.fake.header=c( "", '' ),
-    row.names=c('F.I.Summary', 'F.I.Day.Summary')
+                          'https://www.twse.com.tw/fund/BFI82U?response=csv&dayDate=',
+                          'https://www.twse.com.tw/exchangeReport/MI_MARGN?response=csv&date=' ),
+    data.url.tail=c( "", '&type=day', '&selectType=ALL'),
+    data.fake.header=c( "", '', '' ),
+    row.names=c('F.I.Summary', 'F.I.Day.Summary', 'M.trading.S.selling')
 )
 
 back.remain <- as.numeric(get.conf(name="crawl.date.back.remain"))

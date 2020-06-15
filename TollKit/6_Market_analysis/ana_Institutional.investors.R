@@ -64,6 +64,6 @@
     barplot(sel.xts$SUM.YL_DIFF, main='Momentum of Bought & Sold')
     barplot(sel.xts$YL_DIFF, main='Daily Bought & Sold')
     plot(sel.xts[,select.col.ma], col=c('red', 'orange', 'blue', 'green'), main='Bought/Sold stocks of F.I.')
-    plot(merge(ma[,c(2,3)], 0), col=c('green', 'brown', 'darkgray'), main='trent of Momentum & Shrink')
+    plot(merge(ma[,c(2,3)], 0), col=c('green', 'brown', 'darkgray'), main='trend of Momentum & Shrink')
     
     
