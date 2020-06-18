@@ -23,6 +23,7 @@
     #   STOCK_CODE  STOCK_NAME  M.T.BoughtIn    M.T.SellOut M.T.CashPay M.T.balance.yesterday M.T.balance.today M.T.Limits  S.S.BoughtIn    S.S.SellOut S.S.TicketPay S.S.balance.yesterday S.S.balance.today  S.S.Limits  S.S.TicketPay Note
     col.bystock.names <- c( 'STOCK_CODE', 'STOCK_NAME', 'M.T.BoughtIn', 'M.T.SellOut', 'M.T.CashPay', 'M.T.balance.yesterday', 'M.T.balance.today', 'M.T.Limits', 
                     'S.S.BoughtIn', 'S.S.SellOut', 'S.S.TicketPay', 'S.S.balance.yesterday', 'S.S.balance.today', 'S.S.Limits', 'S.S.TicketPay', 'Note')
+                    
     fi.orig.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/Margin.Trading_Short.Selling/2_toUTF8/'
     fi.dest.bystock.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/Margin.Trading_Short.Selling/3_by.stock/'
     fi.dest.byday.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/Margin.Trading_Short.Selling/4_by.day/' 

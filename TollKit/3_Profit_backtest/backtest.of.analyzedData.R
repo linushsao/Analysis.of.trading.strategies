@@ -146,7 +146,14 @@
     all.return <- backtest.result[["all.return"]]
     all.assets <- backtest.result[["all.assets"]]
     all.sim.assets <- na.omit(backtest.result[["all.sim.assets"]])
+    all.sim.weight <- backtest.result[["sim.portfolio"]]
     trading.straregy <- backtest.result[["trading.straregy"]]
+    
+    #remix
+    all.sim.assets.tmp <- as.matrix(t(t(apply(all.sim.assets, 2, max))))
+    all.sim.assets.tmp <- cbind(rownames(all.sim.assets.tmp), all.sim.assets.tmp)
+    rownames(all.sim.assets.tmp) <- NULL
+    all.sim.assets.range <- all.sim.assets.tmp[order(all.sim.assets.tmp[,2]),]
     
     #Singal Stock performance
     for (i in 1:length(index(all.stock.name))) {
@@ -176,4 +183,6 @@
     summary(all.return)
     summary(all.assets)
     print(backtest.result[['portfolio']])
+
+#
 

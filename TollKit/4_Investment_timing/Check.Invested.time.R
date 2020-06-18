@@ -115,21 +115,28 @@
         # resummary for function surge.indicator >>
         
         # added indicator
-        stock.ma$tension <- stock.ma$brown - stock.ma$red
-        stock.ma$shrink <- apply(merge(stock.ma$brown, stock.ma$blue, stock.ma$red), 1,sd)
-        stock.ma$shrink.ret <-  ROC(stock.ma$shrink)
+#         stock.ma$tension <- stock.ma$brown - stock.ma$red
+#         stock.ma$shrink <- apply(merge(stock.ma$brown, stock.ma$blue, stock.ma$red), 1,sd)
+#         stock.ma$shrink.ret <-  ROC(stock.ma$shrink)
+        stock.ma <- append.col.xts(data=stock.ma, col.data=(stock.ma$brown - stock.ma$red), col.name='tension')
+        stock.ma <- append.col.xts(data=stock.ma, col.data=apply(merge(stock.ma$brown, stock.ma$blue, stock.ma$red), 1,sd), col.name='shrink')
+        stock.ma <- append.col.xts(data=stock.ma, col.data=ROC(stock.ma$shrink), col.name='shrink.ret')
         shrink.stdRet <- m_std.data(stock.ma$shrink.ret)[['data']]
         
         # prepare for presentation
         trade.signal.xts <- trade.signal
         trade.signal.xts <- merge(trade.signal.xts, stock.ma[, trigger.line])
         trade.signal.xts <- merge(trade.signal.xts, stock.ma$clpr.ret)
-        trade.signal.xts$trade.signal.xts <- lag(trade.signal.xts$trade.signal.xts, 1)
+#         trade.signal.xts$trade.signal.xts <- lag(trade.signal.xts$trade.signal.xts, 1)
+        trade.signal.xts <- append.col.xts(data=trade.signal.xts[,-1], col.data=lag(trade.signal.xts$trade.signal.xts, 1), col.name='trade.signal.xts')
         trade.signal.xts$trade.signal.xts[is.na(trade.signal.xts$trade.signal.xts)] <- 0
         
         # count for profit
-        trade.signal.xts$day.ret <- apply(trade.signal.xts, 1, function(x) return(x[1]*x[3])) #earning per day
-        trade.signal.xts$cum.ret <- cumprod( 1 + trade.signal.xts$day.ret )  #cumsum earning
+#         trade.signal.xts$day.ret <- apply(trade.signal.xts, 1, function(x) return(x[1]*x[3])) #earning per day
+#         trade.signal.xts$cum.ret <- cumprod( 1 + trade.signal.xts$day.ret )  #cumsum earning
+        trade.signal.xts <- append.col.xts(data=trade.signal.xts, col.data=apply(trade.signal.xts, 1, function(x) return(x[1]*x[3])), col.name='day.ret')
+        trade.signal.xts <- append.col.xts(data=trade.signal.xts, col.data=cumprod( 1 + trade.signal.xts$day.ret ), col.name='cum.ret')
+       
         trade.signal.xts <- merge(trade.signal.xts, Clprs)
         trade.signal.xts <- trade.signal.xts[complete.cases(trade.signal.xts)]
 

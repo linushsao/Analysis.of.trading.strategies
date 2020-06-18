@@ -124,11 +124,11 @@ for(ma.id in 1:length(ma.VALUE))
 }
 rm(list=c('tmp', 'tmp.s'))
 
-data.clean <- function(data, replace=NA)
-{
-data[is.infinite(data)] <- replace
-return(data)
-}
+# data.clean <- function(data, replace=NA)
+# {
+# data[is.infinite(data)] <- replace
+# return(data)
+# }
 
 all.ma <- ma.trend.data[, select.col.ma]
 all.ma.s <- ma.trend.data[, select.col.ma.s]
@@ -148,7 +148,7 @@ ma_shrink <- xts(apply(all.ma.s, 1, sd), order.by=(index(all.ma.s)))
 ma_shrink <- ma_shrink[complete.cases(ma_shrink), ]
 ma_tension <- all.ma.s[, ncol.all.ma.s] - all.ma.s[, 1] ; names(ma_tension) <- 'ma_tension'
 ma_tension <- ma_tension[complete.cases(ma_tension), ]
-ma_momentum.tension <- cumsum(ma_tension); names(ma_momentum.tension) <- 'ma_momentum.tension'
+ma_momentum <- cumsum(ma_tension); names(ma_momentum) <- 'ma_momentum'
 ma_roc.shrink <- ROC(ma_shrink); names(ma_roc.shrink) <- 'ma_roc.shrink'
 ma_roc.shrink <- ma_roc.shrink[complete.cases(ma_roc.shrink),]
 
@@ -157,14 +157,14 @@ t.return <- t.xts.raw$Close
 t.return$ret <- ROC(t.return$Close)
 t.return$ma_shrink <- rescale(ma_shrink)
 t.return$ma_tension <- rescale(ma_tension)
-t.return$ma_momentum.tension <- rescale(ma_momentum.tension)
+t.return$ma_momentum <- rescale(ma_momentum)
 t.return$ma_roc.shrink <- rescale(ma_roc.shrink)
 t.return <- t.return[complete.cases(t.return), ]
 
-#fix ma_momentum.tension by ma_momentum.tension.ret
-fixed.indicator <- data.frame(t.return$ma_momentum.tension, t.return$ma_tension)
+#fix ma_momentum by ma_momentum.ret
+fixed.indicator <- data.frame(t.return$ma_momentum, t.return$ma_tension)
 fixed.indicator$ma_tension.logic <- ifelse(fixed.indicator$ma_tension >0 , 1, -1)
-fixed.indicator$trade.signal.raw  <- abs(fixed.indicator$ma_momentum.tension) * fixed.indicator$ma_tension.logic
+fixed.indicator$trade.signal.raw  <- abs(fixed.indicator$ma_momentum) * fixed.indicator$ma_tension.logic
 
 t.return$trade.signal.raw  <- fixed.indicator$trade.signal.raw
 t.return$trade.signal  <- ifelse(t.return$trade.signal.raw  < 0, 1, 0)
@@ -181,10 +181,10 @@ result$return <- cumprod(1 + (result$trade.dailyEarn[period]))
 
 x11()
 chartSeries(t.xts.raw[period], up.col='red', dn.col='green') #data.from: RAW, others from scale
-addTA(all.ma[period], col=color.plate[sample(length(color.plate), ncol(all.ma))], on=1)
+addTA(all.ma[period], col=c('white', color.plate[sample(length(color.plate), (ncol(all.ma)-2))], 'red'), on=1)
 # addTA(all.ma[period], col=c("red",'blue',"green","darkgray"), on=1)
 addTA(merge(ma_tension, ma_shrink, 0)[period],col=c('brown','chartreuse4', 'darkgray', rep('gray1',2), rep('purple4',4)))
-addTA(merge(ma_momentum.tension, 0)[period], col=c('cyan1','darkgray'))
+addTA(merge(ma_momentum, 0)[period], col=c('cyan1','darkgray'))
 addTA(result$return, col='blue')
 
 if(! is.na(stock.custom[1]))
@@ -203,7 +203,7 @@ x11()
 par(mfrow=c(3,2))
 plot(t.return$Close[period], main=title, col='red')
 plot(t.return$Close[period], main=title, col='red')
-plot(merge(t.return$trade.signal.softmax, t.return$ma_momentum.tension, t.return$trade.signal.raw)[period], col=c('blue', 'cyan4', 'coral1'))
-plot(merge(t.return$ma_tension, t.return$ma_momentum.tension, t.return$ma_shrink, 0)[period], col=c('brown', 'cyan4', 'chartreuse4', 'darkgray'))
+plot(merge(t.return$trade.signal.softmax, t.return$ma_momentum, t.return$trade.signal.raw)[period], col=c('blue', 'cyan4', 'coral1'))
+plot(merge(t.return$ma_tension, t.return$ma_momentum, t.return$ma_shrink, 0)[period], col=c('brown', 'cyan4', 'chartreuse4', 'darkgray'))
 plot(result$return, col='purple',main=paste0('max: ', round(max(result$return),4),' average: ', round(mean(result$return), 4)))
-plot(merge(t.return$ma_momentum.tension, t.return$ma_tension, t.return$trade.signal.raw, 0)[period], col=c('cyan4', 'brown', 'coral1', 'darkgray'))
+plot(merge(t.return$ma_momentum, t.return$ma_tension, t.return$trade.signal.raw, 0)[period], col=c('cyan4', 'brown', 'coral1', 'darkgray'))

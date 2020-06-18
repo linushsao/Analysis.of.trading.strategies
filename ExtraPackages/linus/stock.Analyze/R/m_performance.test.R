@@ -184,9 +184,10 @@ m_performance.test <- function( selected.list=NULL,
                 write.csv(z.file,file=filename) 
         }
 
+           
 #     z.cor
     stock.name <- data.frame(get.stock_code, get.stock_chinesename)
-    result <- list(all.stock.name=stock.name, trading.straregy=trading.straregy_type, tranSet_data=tranSet_data,all.stock.ret=all_RET,all.stock.traderet=all_tradeRET,all.return=all_return, all.assets=all_assets, all.sim.assets=sim_cum_return, portfolio=portfolio, id=job.id)
+    result <- list(all.stock.name=stock.name, trading.straregy=trading.straregy_type, tranSet_data=tranSet_data,all.stock.ret=all_RET,all.stock.traderet=all_tradeRET,all.return=all_return, all.assets=all_assets, all.sim.assets=sim_cum_return, portfolio=portfolio, sim.portfolio=sim_weight)
     return(result)
     
 }

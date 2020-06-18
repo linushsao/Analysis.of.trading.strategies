@@ -23,11 +23,21 @@
                             stock.ma <- merge(stock.ma, tmp.stock.ma)
                         }
                     }
-
+            stock.ma <- na.filter(stock.ma)
             if(method == 0) #default method
-            {
-            stock.ma$average <- apply(stock.ma, 1,function(x) mean(x[c(2,3)]))
-            stock.ma$average_1 <- apply(stock.ma, 1,function(x) mean(x[c(1:3)]))
+            { 
+#             stock.ma$average <- apply(stock.ma, 1,function(x) mean(x[c(2,3)]))
+#             stock.ma$average_1 <- apply(stock.ma, 1,function(x) mean(x[c(1:3)]))
+#               tmp.data <- xts(data.frame(average=apply(stock.ma, 1,function(x) mean(x[c(2,3)])),
+#                                      average_1=apply(stock.ma, 1,function(x) mean(x[c(1:3)])) ) ,
+#                                      order.by=index(stock.ma))
+#               stock.ma <- cbind(stock.ma, tmp.data)
+                stock.ma <- append.col.xts( data=stock.ma, 
+                                            col.data=apply(stock.ma, 1,function(x) mean(x[c(2,3)])), 
+                                            col.name='average')
+                stock.ma <- append.col.xts( data=stock.ma, 
+                                col.data=apply(stock.ma, 1,function(x) mean(x[c(1,3)])), 
+                                col.name='average_1')
             }
         result <- merge(data, stock.ma)
         return(result)

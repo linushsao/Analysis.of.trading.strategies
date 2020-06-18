@@ -16,3 +16,18 @@ replace.colname <- function(x, pattern, replace)
     names(x) <- tmp.colname
     return(x)
 }
+
+data.clean <- function(data, replace=NA)
+{
+data[is.infinite(data)] <- replace
+return(data)
+}
+
+append.col.xts <- function(data=NULL, col.data=NULL, col.name=NULL)
+{
+
+    tmp.data <- xts(data.frame(col.data), order.by=index(data))
+    names(tmp.data) <- col.name
+    data <- cbind(data, tmp.data)
+    return(data)
+}

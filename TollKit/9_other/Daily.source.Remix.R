@@ -17,7 +17,7 @@
     list.updn <- as.logical(get.users.input(prompt='Pls Enter If UpDn_List report(T/F)', index='list.updn'))
     list.fi.summary <- as.logical(get.users.input(prompt='Pls Enter If fi.summary report(T/F)', index='list.fi.summary'))    
 
-    if(remix.date == 's') remix.date <- as.Date(Sys.time())
+    if(remix.date == 's') remix.date <- format(Sys.time(), "%Y-%m-%d")
 #     stock.data.path <- dataset.MGR()
     fi.dest.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/3_stock/'
     fi.dest.mix.path <- '/home/linus/Project/0_Comprehensive.Research/04_price.mixed/'

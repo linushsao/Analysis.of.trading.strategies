@@ -12,12 +12,14 @@
     research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
     setwd(research.path.of.linus)
 
-    fi.dest.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/3_stock/'
+#     fi.dest.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/3_stock/'
     fi.dest.mix.path <- '/home/linus/Project/0_Comprehensive.Research/04_price.mixed/'
     
 #     na.filter <- function(x) {return(x[complete.cases(x),])}
     get.input <- get.users.input() #get basic data of stock/eft/index
-
+    get.path <- as.character(get.users.input(prompt='Pls Enter If Change file.path?', index='get.path'))
+    fi.dest.mix.path <- ifelse((length(get.path) == 1 || !get.path), fi.dest.mix.path, get.path)
+    
     stock.code <- paste0(get.input[1], '.TW.csv')
     testSet.period <- get.input[2]
     analyze.group <- get.input[3]
