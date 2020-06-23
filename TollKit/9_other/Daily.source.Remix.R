@@ -15,12 +15,15 @@
     # modify column & export
     remix.date <- get.users.input(prompt='Pls Enter Remix.date(y-m-d), or using (s)ys.time', index='remix.date')
     list.updn <- as.logical(get.users.input(prompt='Pls Enter If UpDn_List report(T/F)', index='list.updn'))
-    list.fi.summary <- as.logical(get.users.input(prompt='Pls Enter If fi.summary report(T/F)', index='list.fi.summary'))    
+    list.fi.summary <- as.logical(get.users.input(prompt='Pls Enter If fi.summary report(T/F)', index='list.fi.summary'))  
+    list.byYield <- get.users.input(prompt='Pls Enter If byYield report(filename / FALSE )', index='list.byYield')
 
     if(remix.date == 's') remix.date <- format(Sys.time(), "%Y-%m-%d")
 #     stock.data.path <- dataset.MGR()
     fi.dest.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/3_stock/'
     fi.dest.mix.path <- '/home/linus/Project/0_Comprehensive.Research/04_price.mixed/'
+    fi.byYeild.path <- '/home/linus/Project/0_Comprehensive.Research/09_理論及研究資料/'
+    
     filename=paste0('/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/remix.stock.2020_', remix.date,'.csv')
     filename_remix <- paste0(gsub('.csv', '', filename), '_.csv')
     data.raw <- read.csv(filename, header=TRUE, sep=',')[,-c(1)]
@@ -193,5 +196,17 @@
             
         }
     }
-    
+ 
+    if(is.na(as.logical(list.byYield) == FALSE))
+    {
+        file.byYeild <-  read.csv(paste0(fi.byYeild.path, list.byYield), header=T, sep=',')
+        file.byYeild$STOCK_CODE <- paste0(file.byYeild$STOCK_CODE, '.TW')
+#         data.raw.tmp <- data.raw[,c('STOCK_CODE', 'STOCK_NAME', 'LAST_CLOSE.average', 'oscillate.brown', 'oscillate.blue', 'oscillate.red', 'oscillate.tenstion', 'oscillate.shrink')]
+        data.byYeild <- merge(file.byYeild, data.raw, by='STOCK_CODE')
+        data.byYeild$STOCK_NAME.y <- NULL
+        names(data.byYeild) <- gsub('STOCK_NAME.x', 'STOCK_NAME', names(data.byYeild))
+        filename_byYeild=paste0('/home/linus/Project/0_Comprehensive.Research/03_Remixed.data/01_stock/remix.stock.2020_', remix.date,'_byYeild.csv')
+        write.csv(data.byYeild, file=filename_byYeild)
+            
+    }
     #
