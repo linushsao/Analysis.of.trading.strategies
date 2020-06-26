@@ -14,6 +14,12 @@ research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 setwd(research.path.of.linus)
 #Basic Configure >>
 #Param Configure <<
+yahoo.df.path.default <- '/home/linus/web.crawl.YAHOO.Configure.csv'
+yahoo.df.path <- ifelse( is.null(get.conf(name='yahoo.df.path')), yahoo.df.path.default, get.conf(name='yahoo.df.path') )
+yahoo.df <- read.csv(yahoo.df.path, head=T, sep=',')[,-1]
+rownames(yahoo.df) <- yahoo.df[,1]
+yahoo.df <- yahoo.df[,-1]
+
 url.head <- "https://query1.finance.yahoo.com/v7/finance/download/"
 url.tail <- "?period1=1199059200&period2=1585267200&interval=1d&events=history"
 crawl.check <- ".crawl.check.csv"

@@ -12,27 +12,15 @@ library("stock.Analyze")
 research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
 setwd(research.path.of.linus)
 
-# twse.df <- data.frame(
-#     data.dir=c( "/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/1_raw.file/" ,
-#                      '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/4_raw.file.day/',
-#                      '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/Margin.Trading_Short.Selling/1_raw.file/',
-#                      '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/Investment.profit_related' ),
-#     data.url.head=c( "https://www.twse.com.tw/fund/TWT38U?response=csv&date=",
-#                           'https://www.twse.com.tw/fund/BFI82U?response=csv&dayDate=',
-#                           'https://www.twse.com.tw/exchangeReport/MI_MARGN?response=csv&date=',
-#                           'https://www.twse.com.tw/exchangeReport/BWIBBU_d?response=csv&date=' ),
-#     data.url.tail=c( "", '&type=day', '&selectType=ALL', '&selectType=ALL'),
-#     data.fake.header=c( "", '', '' , ''),
-#     row.names=c('F.I.Summary', 'F.I.Day.Summary', 'M.trading.S.selling', 'I.profit_related')
-# )
 twse.df.path.default <- '/home/linus/web.crawl.TWSE.Configure.csv'
 twse.df.path <- ifelse( is.null(get.conf(name='twse.df.path')), twse.df.path.default, get.conf(name='twse.df.path') )
 twse.df <- read.csv(twse.df.path, head=T, sep=',')[,-1]
 rownames(twse.df) <- twse.df[,1]
 twse.df <- twse.df[,-1]
 
-back.remain <- as.numeric(get.conf(name="crawl.date.back.remain"))
-stop.date <- as.Date(Sys.time()) - back.remain
+# back.remain <- as.numeric(get.conf(name="crawl.date.back.remain"))
+# stop.date <- as.Date(Sys.time()) - back.remain
+stop.date <- '2015-01-01'
 crawl.delay.seconds <- m_env(name="crawl.delay.seconds",mode="r")
 if( is.null(crawl.delay.seconds) || (crawl.delay.seconds  == "")) { 
     crawl.delay.seconds <- c(10:30) #default

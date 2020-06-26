@@ -17,8 +17,10 @@
     col.names.df <- c('Index', col.names)
     fi.orig.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/2_toUTF8/'
     fi.dest.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/3_stock/'
-    mentain.date.start <- as.Date('2018-01-02')
-    mentain.date.end <- as.Date(Sys.time())
+#     mentain.date.start <- as.Date('2018-01-02')
+#     mentain.date.end <- as.Date(Sys.time())
+    mentain.date.end <- as.Date('2018-01-02')
+    mentain.date.start <- as.Date(Sys.time())
     tmp.df <- data.frame(t(col.names.df))
     names(tmp.df) <- col.names.df
     
@@ -65,8 +67,17 @@
             }
         }
         if(mentain.date.start == mentain.date.end)  break
-        mentain.date.start <- mentain.date.start + 1
+        mentain.date.start <- mentain.date.start - 1
     }
+    
+#
+# filename <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/3_stock/0050.TW.csv'
+# a <- read.csv(filename, header=T, sep=',')
+# tail(a)
+# a.xts <- xts(a[,-c(1:3)], order.by=as.Date(a$Index))
+
+
+
         
     
     
