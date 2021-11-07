@@ -208,7 +208,7 @@ for( group.id in 1:length(analyze.group.conf))
     ###
     rownames(remix.data) <- NULL
     #saveing...
-    remix.filename <- m_paste(c(as.character(env.config[analyze.group, 'remix']), 'remix.', analyze.group, '.', m_gsub(c(analyze.group, '.'),c('',''), get.research.end, fix=TRUE), '_', as.character(as.Date(Sys.time())), '.csv'), op="")
+    remix.filename <- m_paste(c(as.character(env.config[analyze.group, 'remix']), 'remix.', analyze.group, '.', m_gsub(c(analyze.group, '.'),c('',''), get.research.end, fix=TRUE), '_', as.character(as.Date(Sys.Date())), '.csv'), op="")
     write.csv(remix.data, file=remix.filename )
 
 }

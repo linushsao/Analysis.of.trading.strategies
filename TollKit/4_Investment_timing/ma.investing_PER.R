@@ -179,6 +179,7 @@ result$return <- cumprod(1 + (result$trade.dailyEarn[period]))
 
 # write.zoo(merge(t.return, result$return, all.ma, ROC(all.ma$ma_20)), file=paste0('/home/linus/Project/0_Comprehensive.Research/00_raw.data/', 'ma.investingData_', analyze.group, '.',as.Date(Sys.time()), '.csv'))
 
+
 x11()
 chartSeries(t.xts.raw[period], up.col='red', dn.col='green') #data.from: RAW, others from scale
 addTA(all.ma[period], col=c('white', color.plate[sample(length(color.plate), (ncol(all.ma)-2))], 'red'), on=1)
@@ -186,6 +187,7 @@ addTA(all.ma[period], col=c('white', color.plate[sample(length(color.plate), (nc
 addTA(merge(ma_tension, ma_shrink, 0)[period],col=c('brown','chartreuse4', 'darkgray', rep('gray1',2), rep('purple4',4)))
 addTA(merge(ma_momentum, 0)[period], col=c('cyan1','darkgray'))
 addTA(result$return, col='blue')
+addMACD()
 
 if(! is.na(stock.custom[1]))
 {
@@ -203,7 +205,7 @@ x11()
 par(mfrow=c(3,2))
 plot(t.return$Close[period], main=title, col='red')
 plot(t.return$Close[period], main=title, col='red')
-plot(merge(t.return$trade.signal.softmax, t.return$ma_momentum, t.return$trade.signal.raw)[period], col=c('blue', 'cyan4', 'coral1'))
+plot(merge(t.return$trade.signal.softmax, t.return$ma_momentum, t.return$trade.signal.raw)[period], col=c('blue', 'cyan4', 'coral1'), main='開平倉策略')
 plot(merge(t.return$ma_tension, t.return$ma_momentum, t.return$ma_shrink, 0)[period], col=c('brown', 'cyan4', 'chartreuse4', 'darkgray'))
 plot(result$return, col='purple',main=paste0('max: ', round(max(result$return),4),' average: ', round(mean(result$return), 4)))
 plot(merge(t.return$ma_momentum, t.return$ma_tension, t.return$trade.signal.raw, 0)[period], col=c('cyan4', 'brown', 'coral1', 'darkgray'))

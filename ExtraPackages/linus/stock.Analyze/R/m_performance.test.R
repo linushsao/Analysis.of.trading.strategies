@@ -51,10 +51,10 @@ m_performance.test <- function( selected.list=NULL,
         KDtrade <- stock.CumulativeRate(data[testSet_period],strategy_type=trade_type,trade_trigger=trade_param)[testSet_period[1]]        
         close <- data$Close
 
-        Ret <- KDtrade[,1] 
+        return_ret <- KDtrade[,1] 
         tradeRet <- KDtrade[,2]
         #record all rate of stocks
-        return_ret <- Ret
+#         return_ret <- Ret
         names(return_ret) <- paste(stock_name,"ret",sep="_")
         return_traderet <- tradeRet
         names(return_traderet) <- paste(stock_name,"traderet",sep="_")
@@ -66,6 +66,14 @@ m_performance.test <- function( selected.list=NULL,
 
         #for TrainSet
         all_stock_closeprice <- cbind(all_stock_closeprice,close)
+        
+        #
+        if(rowid == 1)
+        {
+            return_ret.BySignal <- return_ret
+            }else{
+            return_ret.BySignal <- merge(return_ret.BySignal, return_ret)
+        }
     }
             
     #End of Function
@@ -187,7 +195,7 @@ m_performance.test <- function( selected.list=NULL,
            
 #     z.cor
     stock.name <- data.frame(get.stock_code, get.stock_chinesename)
-    result <- list(all.stock.name=stock.name, trading.straregy=trading.straregy_type, tranSet_data=tranSet_data,all.stock.ret=all_RET,all.stock.traderet=all_tradeRET,all.return=all_return, all.assets=all_assets, all.sim.assets=sim_cum_return, portfolio=portfolio, sim.portfolio=sim_weight)
+    result <- list(all.stock.name=stock.name, trading.straregy=trading.straregy_type, tranSet_data=tranSet_data,all.stock.ret=all_RET,all.stock.traderet=all_tradeRET,all.return=all_return, return_ret.BySignal=return_ret.BySignal, all.assets=all_assets, all.sim.assets=sim_cum_return, portfolio=portfolio, sim.portfolio=sim_weight)
     return(result)
     
 }

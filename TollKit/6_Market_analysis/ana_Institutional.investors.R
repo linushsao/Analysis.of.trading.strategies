@@ -4,17 +4,29 @@
     #
     LIBRS <- c('quantmod','stringr','xts','TTR','roxygen2','tseries','rlist','lubridate', 'ids', 'rvest','XML')
     sapply(LIBRS,library,character.only=TRUE)
+    
+        winpath.trans.local <- function(x, home.dir=NULL)
+    {
+       if(!is.null(home.dir))  tmp <- gsub(home.dir[1], '', x)
+        tmp <- gsub('/', '\\\\', tmp)
+       if(!is.null(home.dir))  tmp <- paste0(home.dir[2], tmp)
+        
+        return(tmp)
+    }
     # sapply(LIBRS,install.packages,character.only=TRUE)
-    setwd("/home/linus/Project/1_R/Analysis.of.trading.strategies/ExtraPackages/linus/stock.Analyze/")
+    my.wd <- "/home/linus/Project/1_R/Analysis.of.trading.strategies/ExtraPackages/linus/stock.Analyze/"
+    my.wd <- winpath.trans.local(my.wd, home.dir=c('/home/linus/', 'C:\\Users\\linus\\Documents\\'))
+    setwd(my.wd)
     library('roxygen2')
     roxygenize()
     library("stock.Analyze")
     research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
+    research.path.of.linus <- winpath.trans.local(research.path.of.linus, home.dir=c('/home/linus/', 'C:\\Users\\linus\\Documents\\'))
     setwd(research.path.of.linus)
 
 #     fi.dest.path <- '/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/foreign.investment.Sales.Summary/3_stock/'
     fi.dest.mix.path <- '/home/linus/Project/0_Comprehensive.Research/04_price.mixed/'
-    
+   fi.dest.mix.path <- winpath.trans.local(fi.dest.mix.path, home.dir=c('/home/linus/', 'C:\\Users\\linus\\Documents\\')) 
 #     na.filter <- function(x) {return(x[complete.cases(x),])}
     get.input <- get.users.input() #get basic data of stock/eft/index
     get.path <- as.character(get.users.input(prompt='Pls Enter If Change file.path?', index='get.path'))

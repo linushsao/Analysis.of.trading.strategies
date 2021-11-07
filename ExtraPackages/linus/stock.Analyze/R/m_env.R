@@ -8,7 +8,7 @@
 #' median_function(seq(1:10))
 
 m_env <- function(name=NULL,value=NULL,mode="init_list",dataset="env") {
-
+    
     #dataset: 
     #1. = default,means handle environment variables
     #2. dataset could be defined to another custom dataset name        
@@ -16,15 +16,9 @@ m_env <- function(name=NULL,value=NULL,mode="init_list",dataset="env") {
     FLAG_add <- TRUE
     name.name <- "name"
     name.value <- "value"
-#     name.group <- "group"
-#     env.file_name <- "env_file"
-#     env.file_value <- ".env.Configure"
-    # dataset relatived
-#     conf_name <- m_paste(c("/home/linus/ProjectStock/all_stocks/",env.file_value,extension),op="")
-
-
+    
     # function <<
-
+    
     env.add.colname <- function(v){
         config <- read.csv(conf_name,header=FALSE)[-c(1),-c(1)] 
         new.col <- rep("_", length(config[,1]))
@@ -34,94 +28,81 @@ m_env <- function(name=NULL,value=NULL,mode="init_list",dataset="env") {
         write.csv(result,file=name)
         
         return(result)
-        }
+    }
     
     env.db.merge <- function(be.merged,name){
-            #backup original conf
-            file.copy(name,paste(name,format(Sys.time(), "%b-%d_%X"),sep="."))
-            
-            be.merged.file <- read.csv(be.merged,header=FALSE)[-c(1),-c(1)] 
-                config <- read.csv(conf_name,header=FALSE)[-c(1),-c(1)] 
-                config <- rbind(config,be.merged.file)
-                result <- config
-                names(result) <- c(name.name ,name.value)
-                
-            write.csv(result,file=name)
-
+        #backup original conf
+        file.copy(name,paste(name,format(Sys.time(), "%b-%d_%X"),sep="."))
+        
+        be.merged.file <- read.csv(be.merged,header=FALSE)[-c(1),-c(1)] 
+        config <- read.csv(conf_name,header=FALSE)[-c(1),-c(1)] 
+        config <- rbind(config,be.merged.file)
+        result <- config
+        names(result) <- c(name.name ,name.value)
+        
+        write.csv(result,file=name)
+        
         return(result)
     }
-
+    
     env.db.replace <- function(be.replaced,name){
-            #backup original conf
-            file.copy(name,paste(name,format(Sys.time(), "%b-%d_%X"),sep="."))
-            
-            config <- read.csv(be.replaced,header=FALSE)[-c(1),-c(1)] 
-                result <- config
-                names(result) <- c(name.name ,name.value)
-            
-            write.csv(result,file=name)
-
+        #backup original conf
+        file.copy(name,paste(name,format(Sys.time(), "%b-%d_%X"),sep="."))
+        
+        config <- read.csv(be.replaced,header=FALSE)[-c(1),-c(1)] 
+        result <- config
+        names(result) <- c(name.name ,name.value)
+        
+        write.csv(result,file=name)
+        
         return(result)
     }
     
     env.reset <- function(v,name){
-            #backup original conf
-            file.copy(name,paste(name,format(Sys.time(), "%b-%d_%X"),sep="."))
-            
-            unlink(name)
-            file.create(name)
-            
-            result <- data.frame(a=c(v[1]),b=c(v[2]))
-            names(result) <- c(name.name ,name.value)
-            write.csv(result,file=name)
-            
+        #backup original conf
+        file.copy(name,paste(name,format(Sys.time(), "%b-%d_%X"),sep="."))
+        
+        unlink(name)
+        file.create(name)
+        
+        result <- data.frame(a=c(v[1]),b=c(v[2]))
+        names(result) <- c(name.name ,name.value)
+        write.csv(result,file=name)
+        
         return(result)
     }
-
+    
     env.read <- function(x){
         config <- read.csv(conf_name,header=FALSE)[-c(1),-c(1)] 
         r.name <- as.vector(t(config[,1]))
         r.value <- as.vector(t(config[,2]))
         for( y1 in 1:length(r.name)) {
             if( x == r.name[y1] ) { 
-            result <- r.value[y1]
-            return(result)
+                result <- r.value[y1]
+                return(result)
             }
         }
     }
     
     env.modify <- function(){
-            config <- read.csv(conf_name,header=FALSE)[-c(1),-c(1)] 
-            filter <- as.vector(t(config[,1]))
-            for( y1 in 1:length(filter)) {
-                if( name == filter[y1] ) { 
+        config <- read.csv(conf_name,header=FALSE)[-c(1),-c(1)] 
+        filter <- as.vector(t(config[,1]))
+        for( y1 in 1:length(filter)) {
+            if( name == filter[y1] ) { 
                 temp <- as.vector(t(config[,2]))
                 temp[y1] <- value
                 config[,2] <- temp
                 write.csv(config,file=conf_name)
                 FLAG_add <- FALSE
-                    }
-                }
-            if( FLAG_add ) { # add record
-                temp <- data.frame(a=c(name),b=c(value))
-                names(config) <- c(name.name ,name.value)
-                names(temp) <- c(name.name ,name.value)
-                config <- rbind(config,temp)
-                write.csv(config,file=conf_name)
-    #             for( y1 in 1:length(filter)) {
-    #                 if( (filter[y1] == "@" || is.null(filter[y1]) || is.na(filter[y1])) && FLAG_add) { 
-    #                     print(y1)
-    #                     temp_1 <- as.vector(t(config[,1]))
-    #                     temp_1[y1] <- name
-    #                     config[,1] <- temp_1
-    #                     temp_2 <- as.vector(t(config[,2]))
-    #                     temp_2[y1] <- value
-    #                     config[,2] <- temp_2
-    #                     write.csv(config,file=conf_name)
-    #                     FLAG_add <- FALSE
-    #                 }
-    #             }
             }
+        }
+        if( FLAG_add ) { # add record
+            temp <- data.frame(a=c(name),b=c(value))
+            names(config) <- c(name.name ,name.value)
+            names(temp) <- c(name.name ,name.value)
+            config <- rbind(config,temp)
+            write.csv(config,file=conf_name)
+        }
         return(config)
     }
     
@@ -130,97 +111,67 @@ m_env <- function(name=NULL,value=NULL,mode="init_list",dataset="env") {
         filter <- as.vector(t(config[,1]))
         for( y1 in 1:length(filter)) {
             if( name == filter[y1]  ) { 
-#            temp <- as.vector(t(config[,2]))
-#            temp[y1] <- value
-            config[y1,] <- NA
-            config <- na.omit(config)
-            write.csv(config,file=conf_name)
-#             FLAG_add <- FALSE
-                }
+                config[y1,] <- NA
+                config <- na.omit(config)
+                write.csv(config,file=conf_name)
             }
+        }
     }
-
-    env.dataset.path.exist <- function(name.env.file_path){
-            #zero <- env(name=name.env.file_path,mode="r")
-#             print(c("4 [",zero," ]",name.env.file_path))
-            if (! file.exists(name.env.file_path) ) { # dataset existed
-                    #setup new dataset
-#                     set.name <- paste(dataset,".file.path",sep="")
-                    env.reset(c(env.file_name,env.file_value),name=name.env.file_path) 
-#                     env(name=set.name ,value=get.sysinfo() ,mode="w")
-#                     name.env.file_path <- env(name=paste(dataset,".file.path",sep=""),mode="r")
-#                     conf_name <- m_paste(c(name.env.file_path,env.file_value,extension),op="")
-                    
-                }
-                
-            result <- name.env.file_path
-            return(result)
+    
+    env.dataset.path.exist <- function(name.env.file_path)
+    {
+        if (! file.exists(name.env.file_path) ) { # dataset existed
+            env.reset(c(env.file_name,env.file_value),name=name.env.file_path) 
+            
         }
         
-#     env.check.confnam <- function(conf.path){
-# 
-# #         print(c("2",dataset,conf.path ))
-#         #conf.path <- env(name=paste(dataset,".file.path",sep=""),mode="r")
-# #         print(c("2A",dataset, conf.path ))
-#         conf_name <- env.dataset.path.exist(conf.path)
-# #         print(c("3",conf_name))
-#         result <- conf_name
-#         return(result)
-#     }
-
-#     env.dataset.switch <- function(dataset){
-#         conf_name <- env.dataset.path.exist(name.env.file_path)
-#         config <- read.csv(conf_name,header=FALSE)[-c(1),-c(1)] 
-#         return(x)
-#     }
-# main function
-#     dataset <- "env"
+        result <- name.env.file_path
+        return(result)
+    }
+    
+    # main function
     env.file_name <- paste(dataset ,"_file" ,sep="")
     env.file_value <- m_paste(c(".",dataset,".Configure"),op="")
     extension <- ".csv"
-    default.env.file_path <- m_paste(c(get.sysinfo(),env.file_value,extension),op="")
-
+    default.env.file_path <- m_paste(c(getwd(), "/",env.file_value,extension),op="")
+    
     conf_name <- env.dataset.path.exist(default.env.file_path)
     
     if(mode == "init_reset") {
         config <- env.reset(c(env.file_name,env.file_value),name=conf_name ) #add first record
         result <- config
     }else if(mode == "init_list") {
-         #do nothing
+        #do nothing
     }else if(mode == "add.colname") {
         config <- env.add.colname(name)
         result <- config
-        }else if(mode == "db_list") {
-            result  <- dataset
-            return(result)
-            break
-        }else if(mode == "db_merge") {
-            be.merged <- value
-            print(c("1",be.merged ,conf_name))
-            config <- env.db.merge(be.merged, name=conf_name)
-            result <- config
-#             return(result)
-#             break
-        }else if(mode == "db_replace") {
-            be.replaced <- value
-            config <- env.db.replace(be.replaced, name=conf_name)
-            result <- config
-#             return(result)
-#             break
+    }else if(mode == "db_list") {
+        result  <- dataset
+        return(result)
+        break
+    }else if(mode == "db_merge") {
+        be.merged <- value
+        print(c("1",be.merged ,conf_name))
+        config <- env.db.merge(be.merged, name=conf_name)
+        result <- config
+    }else if(mode == "db_replace") {
+        be.replaced <- value
+        config <- env.db.replace(be.replaced, name=conf_name)
+        result <- config
     }else if(mode == "w") {
         config <- env.modify()
     }else if(mode == "r") {
         return(env.read(name))
         break
-     }else if(mode == "d") {
+    }else if(mode == "d") {
         config <- env.del(config)
     }
-
-        config <- read.csv(conf_name,header=FALSE)[-c(1),-c(1)]
-        rownames(config) <- NULL
-        names(config) <- c("name","value")
-        result <- config
-        return(result)
+    
+    config <- read.csv(conf_name,header=FALSE)[-c(1),-c(1)]
+    rownames(config) <- NULL
+    names(config) <- c("name","value")
+    result <- config
+    return(result)
 }
 
 #for testing
@@ -274,6 +225,30 @@ m_env <- function(name=NULL,value=NULL,mode="init_list",dataset="env") {
 # head(m_env(mode="init_list"))
 # 
 # head(m_env(mode="init_reset"))
+
+#other function
+
+get.conf <- function(name,dataset="env", default.conf=NULL, splite.char=FALSE, splite.num=FALSE){
+    #     browser()
+    result <- m_env(name=name,mode="r",dataset=dataset)
+    if( is.null(result) ) { result <- default.conf  }
+    
+    return(result)
+}
+
+set.conf <- function(name, value, dataset="env"){
+    
+    result <- m_env(name=name, value=value, mode="w",dataset=dataset)
+    return(TRUE)
+}
+
+rm.conf <- function(name, dataset="env"){
+    
+    result <- m_env(name=name, mode="d",dataset=dataset)
+    return(TRUE)
+}
+
+
 
 
 

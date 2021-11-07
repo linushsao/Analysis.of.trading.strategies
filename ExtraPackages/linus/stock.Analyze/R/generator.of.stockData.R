@@ -16,13 +16,16 @@
                                         auto.detect=TRUE) 
     {
 
-        research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
+        research.path.of.linus <- get.conf(name="research.path.of.linus")
 
         all.code.List <- list.path
         prefix.stock.extension <- ifelse((group == 'index'), '', m_env(name="prefix.stock.extension",mode="r"))
-        prefix.raw.data.name <- m_env(name="prefix.raw.data.name",mode="r")
-        stock.selected.Files_Extension <- m_env(name="stock.selected.Files_Extension",mode="r")
-        raw.data.Listname <- m_env(name="raw.data.Listname",mode="r")
+#         prefix.raw.data.name <- m_env(name="prefix.raw.data.name",mode="r")
+        prefix.raw.data.name <- get.conf(name="prefix.raw.data.name")
+#         stock.selected.Files_Extension <- m_env(name="stock.selected.Files_Extension",mode="r")
+        stock.selected.Files_Extension <- get.conf(name="stock.selected.Files_Extension")
+#         raw.data.Listname <- m_env(name="raw.data.Listname",mode="r")
+        raw.data.Listname <- get.conf(name="raw.data.Listname")
         safe_rate <- 0.015 
         max.record.num <- 60
         raw.data.List <- c()

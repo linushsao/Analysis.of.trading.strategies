@@ -66,7 +66,8 @@
 
 ## Prepare for performanace
 
-    selected.listname.generator <- function(selected.listname.path=NULL , selected.listname=NULL, backtest_num, selected.cols= c('STOCK_CODE', 'STOCK_NAME'), stock.extension='.TW', backtest.file.extension='.csv')
+    selected.listname.generator <- function(selected.listname.path=NULL , selected.listname=NULL, backtest_num, selected.cols= c('STOCK_CODE', 'STOCK_NAME'), 
+                                            stock.extension='.TW', backtest.file.extension='.csv')
     {
         if(! is.null(selected.listname.path))
         {
@@ -148,7 +149,7 @@
     all.sim.assets <- na.omit(backtest.result[["all.sim.assets"]])
     all.sim.weight <- backtest.result[["sim.portfolio"]]
     trading.straregy <- backtest.result[["trading.straregy"]]
-    
+    return_ret.BySignal <- backtest.result[["return_ret.BySignal"]]
     #remix
     all.sim.assets.tmp <- as.matrix(t(t(apply(all.sim.assets, 2, max))))
     all.sim.assets.tmp <- cbind(rownames(all.sim.assets.tmp), all.sim.assets.tmp)
@@ -178,11 +179,11 @@
     t1 <- "FA.enable /"
     t2 <- m_paste(trading.straregy,":")
     tm <- m_paste(c("Strategy.profit_RATE v.s. Random.profit_RATE (",t1,t2,")"))
-    plot(merge(all.assets, all.sim.assets),col=c("black","blue","green",rep("lightgray",100)),screens=1,main=tm)
+    plot(merge(all.assets, all.sim.assets, cumprod(1+return_ret.BySignal)),col=c("red","blue","green", rep("lightgray",ncol(all.sim.assets)), rep("gray65",ncol(return_ret.BySignal))),screens=1,main=tm)
     
     summary(all.return)
     summary(all.assets)
-    print(backtest.result[['portfolio']])
+    print(backtest.result[['portfolio']][-c(1,2)])
 
 #
 

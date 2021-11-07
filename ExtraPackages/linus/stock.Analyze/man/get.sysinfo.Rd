@@ -4,7 +4,7 @@
 \alias{get.sysinfo}
 \title{A get sysinfo Function}
 \usage{
-get.sysinfo(x = 0)
+get.sysinfo(x = 0, path = NULL)
 }
 \arguments{
 \item{x}{A numeric vector.}

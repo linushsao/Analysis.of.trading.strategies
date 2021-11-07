@@ -193,18 +193,18 @@
             trigger.mat['deep pink','max'], trigger.mat['deep pink','min'] ),
             col=c(indicator.color, m_dupli.vector(rownames(trigger.mat))), main=paste('Graph 1C ', main.title))
         
-        x11()
-        par(mfrow=c(3,1))    
-        plot(trade.signal.xts$close, main=paste('Graph 2A ', main.title))
-        cum.ret <- trade.signal.xts$cum.ret
-        title <- m_paste(c('max: ',c(round(max(cum.ret),3),' / average: ', round(mean(cum.ret),3)), op=""))
-        plot(merge(trade.signal.xts[,c(1,5)], shrink.stdRet), col=c('black','green','lightblue'), main=paste('Graph 2B ', title))
-        plot(merge(stock.ma[,-c(1,7:10)], 
-            trigger.mat['green','max'], trigger.mat['green','min'], 
-            trigger.mat['purple','max'], trigger.mat['purple','min'], 
-            trigger.mat['orange','max'], trigger.mat['orange','min'], 
-            trigger.mat['deep pink','max'], trigger.mat['deep pink','min'] ),
-            lwd=c(rep(1,5), rep(1,4)) , col=c(indicator.color, m_dupli.vector(rownames(trigger.mat))), main=paste('Graph 2C ', main.title ))
+#         x11()
+#         par(mfrow=c(3,1))    
+#         plot(trade.signal.xts$close, main=paste('Graph 2A ', main.title))
+#         cum.ret <- trade.signal.xts$cum.ret
+#         title <- m_paste(c('max: ',c(round(max(cum.ret),3),' / average: ', round(mean(cum.ret),3)), op=""))
+#         plot(merge(trade.signal.xts[,c(1,5)], shrink.stdRet), col=c('black','green','lightblue'), main=paste('Graph 2B ', title))
+#         plot(merge(stock.ma[,-c(1,7:10)], 
+#             trigger.mat['green','max'], trigger.mat['green','min'], 
+#             trigger.mat['purple','max'], trigger.mat['purple','min'], 
+#             trigger.mat['orange','max'], trigger.mat['orange','min'], 
+#             trigger.mat['deep pink','max'], trigger.mat['deep pink','min'] ),
+#             lwd=c(rep(1,5), rep(1,4)) , col=c(indicator.color, m_dupli.vector(rownames(trigger.mat))), main=paste('Graph 2C ', main.title ))
 
         x11()
         par(mfrow=c(3,1))
@@ -220,7 +220,7 @@
             trigger.mat['orange','max'], trigger.mat['orange','min'], 
             trigger.mat['deep pink','max'], trigger.mat['deep pink','min'] ),
             main=paste('Graph 3B ', main.title),col=c('brown','chartreuse4', 'black',m_dupli.vector(rownames(trigger.mat))))
-        plot(merge(stock.ma$shrink.ret, 0, 3, -3), col=c('darkslategrey', 'black', 'darkslategray3', 'darkslategray3'), main=paste('Graph 3C ', main.title))
+        plot(merge(stock.ma$shrink.ret, 0, 3, -3), col=c('darkslategrey', 'black', 'darkslategray3', 'darkslategray3'), main=paste('Graph 3C :Shrink ret & ', main.title))
 
         x11()
         par(mfrow=c(3,1))    

@@ -17,12 +17,13 @@ setwd(research.path.of.linus)
 # url.head <- "https://query1.finance.yahoo.com/v7/finance/download/"
 # url.tail <- "?period1=1199059200&period2=1585267200&interval=1d&events=history"
 # crawl.check <- ".crawl.check.csv"
+env.config <- dataset.MGR(request='all_conf')
 extension <- ".TW"
 file.extension <- ".csv"
 crawl.delay.seconds <- c(2:8) #default
 fake.header <- ""
-index.code.list.path <- "/home/linus/Project/9.Shared.Data/1_Taiwan/www.twse.com.tw/all.ETF.code.csv"
-data.dir <- "/home/linus/Project/9.Shared.Data/1_Taiwan/finance.yahoo.com/etf.price/"
+index.code.list.path <- as.character(env.config[analyze.group, 'list'])
+data.dir <- as.character(env.config[analyze.group, 'data'])
 #Param Configure >>
 
 research.path.of.linus <- m_env(name="research.path.of.linus",mode="r")
